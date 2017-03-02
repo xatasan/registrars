@@ -109,10 +109,10 @@ func main() {
 		}
 	})
 
-	gdir := http.FileServer(http.Dir("./source/"))
-	http.HandleFunc("/source", func(w http.ResponseWriter, r *http.Request) {
+	gdir := http.StripPrefix("/source/", http.FileServer(http.Dir("./source/")))
+	http.HandleFunc("/source/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case "/":
+		case "/source/":
 			http.ServeFile(w, r, "./source/log.html")
 		default:
 			gdir.ServeHTTP(w, r)
