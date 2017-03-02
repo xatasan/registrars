@@ -1,0 +1,17 @@
+registrars
+nohub.out
+
+udir
+hdir
+
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+*~
+\#*\#
+
+stagit/

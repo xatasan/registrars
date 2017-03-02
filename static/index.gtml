@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    {{ template "head.gtml" "regist.ra.rs" }}
+    <body>
+	<img src="/img.png" id="figure" />
+
+	<main>
+	    <h1 style="font-family: Consolas, Monaco, monospace, monospace;">regist.ra.rs</h1>
+	    <p id="highl">Upload anything. Max file size is 32MiB</p>
+
+	    <form action="/upload?output=html" method="post" enctype="multipart/form-data">
+		<span id="show" onclick="triggerTimeout()">Temp. hosting</span>
+		<input type="file" multiple name="files">
+		<input type="submit" value="Submit">
+
+		<dir id="timeout">
+		    <p style="margin: 0.5em">
+			If you want your file to delete itself after a
+			while, set a timeout below, specifying
+			how long it should be served. If unset, or
+			this dialog is hidden, the file will not be
+			deleted.
+		    </p>
+		    
+		    <input type="datetime" placeholder="Timeout" name="timeout" id="tov">
+		    <select name="tunit">
+			<option value="m">Minute(s)</option>
+			<option value="h">Hour(s)</option>
+			<option value="d">Day(s)</option>
+			<option value="w">Week(s)</option>
+		    </select>
+		</dir>
+	    </form>
+	    
+	    <p>
+		We guarantee nothing! Every file <em>might</em> be
+		deleted, under specific circumstances. Please read
+		the <a href="/about#faq">FAQ</a> to find out more.
+	    </p>
+
+	    {{ template "nav.gtml" }}
+	</main>
+
+	<aside>
+	    <b>Note:</b> If you got here from an unexpected email, 
+	    or a weird imageboard post, you probably shouldn't trust it.
+	</aside>
+    </body>
+    <script>
+     var tod = document.getElementById("timeout"); // timeout dialog
+     tod.style.display = "none";
+
+     function triggerTimeout() {
+	 document.getElementById("tov").value = "";
+	 tod.style.display = (tod.style.display != "none") ? "none" : "block";
+     }
+    </script>
+</html>
