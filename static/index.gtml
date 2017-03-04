@@ -6,14 +6,14 @@
 
 	<main>
 	    <h1 style="font-family: Consolas, Monaco, monospace, monospace;">regist.ra.rs</h1>
-	    <p id="highl">Upload anything. Max file size is 32MiB</p>
+        <p id="toggle" onclick="toggle()">Temp. hosting</p>
+        <p id="highl">Upload anything. Max file size is 32MiB</p>
 
 	    <form action="/upload?output=html" method="post" enctype="multipart/form-data">
-		<span id="show" onclick="triggerTimeout()">Temp. hosting</span>
 		<input type="file" multiple name="files">
 		<input type="submit" value="Submit">
 
-		<dir id="timeout">
+		<div id="timeout">
 		    <p style="margin: 0.5em">
 			If you want your file to delete itself after a
 			while, set a timeout below, specifying
@@ -22,14 +22,14 @@
 			deleted.
 		    </p>
 		    
-		    <input type="datetime" placeholder="Timeout" name="timeout" id="tov">
+		    <input type="number" placeholder="Timeout" name="timeout" id="tov">
 		    <select name="tunit">
-			<option value="m">Minute(s)</option>
-			<option value="h">Hour(s)</option>
-			<option value="d">Day(s)</option>
-			<option value="w">Week(s)</option>
+                    <option value="m">Minute(s)</option>
+                    <option value="h">Hour(s)</option>
+                    <option value="d">Day(s)</option>
+                    <option value="w">Week(s)</option>
 		    </select>
-		</dir>
+		</div>
 	    </form>
 	    
 	    <p>
@@ -50,7 +50,7 @@
      var tod = document.getElementById("timeout"); // timeout dialog
      tod.style.display = "none";
 
-     function triggerTimeout() {
+     function toggle() {
 	 document.getElementById("tov").value = "";
 	 tod.style.display = (tod.style.display != "none") ? "none" : "block";
      }
