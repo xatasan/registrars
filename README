@@ -1,33 +1,31 @@
-`registrars` is a pomf clone/rewrite, written in [Golang](http://golang.org/), powering [`regist.ra.rs`](http://regist.ra.rs/).
+registrars is a pomf clone/rewrite, written in Golang, powering
+https://regist.ra.rs. It implements the pomf standard, including all
+output types. No database is required to run registrars, nor are there
+any special account features.
 
-It implements the [pomf standard](https://github.com/pomf/pomf-standard), including all output types.
+1 Build and run
+===============
 
-No database is required to run `registrars`, nor are there any special account features.
+  After having had made sure that Go is installed, and having
+  downloaded to code run "go build". This should produce a binary
+  named "registrars".
 
-## Build and run
+  Make sure to execute the program within the directory with the other
+  source code, since it needs the templates and other static files to
+  run properly. Two directories will be created, if not already
+  existing, to store uploads (`hdir' and `udir').
 
-After having had made sure that Go is installed, and having downloaded to code run
+  Now the server should be running on port 8080, accessible by all
+  addresses. To change this behaviour, specify an environmental
+  variable "$HOST", eg.:
 
-```sh
-cd registrars
-go build
-./registrars
-```
+  ,----
+  | HOST="192.168.2.107:9090" ./registrars
+  `----
 
-Make sure to execute the program within the directory with the other
-source code, since it needs the templates and other static files to
-run properly. Two directories will be created, if not already
-existing, to store uploads (`hdir` and `udir`). 
 
-Now the server should be running on port 8080, accessible by all
-addresses. To change this behaviour, specify an environmental variable
-`$HOST`, eg.:
+2 Credits
+=========
 
-```sh
-HOST="192.168.2.107:9090" ./registrars
-```
-
-## Credits
-
-`registrars` was entirely written from scratch, and is published under
-a modified BSD license (See LICENSE). 
+  registrars was entirely written from scratch, and is published under
+  a modified BSD license (See LICENSE).
