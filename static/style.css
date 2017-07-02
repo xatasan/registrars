@@ -22,10 +22,13 @@ p#highl {
 }
 
 #toggle {
-    float: right;
-    color: #abcdef;
-    cursor: pointer;
+    text-align: center;
     font-family: Consolas, Monaco, monospace, monospace;
+}
+
+#toggle span {
+    color: #89abcd;
+    cursor: pointer;
 }
 
 #highl, #toggle {
@@ -80,9 +83,13 @@ nav {
     text-align: right;
 }
 
-nav a {
-    color: #abcdef;
+a {
+    color: #89abcd;
     text-decoration: none;
+}
+
+textarea {
+    min-width: 80%;
 }
 
 /* MOBILE LAYOUT */

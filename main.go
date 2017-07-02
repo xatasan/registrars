@@ -19,6 +19,19 @@ const (
 	maxf = 32e6               // max file size (byte)
 
 	alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtsuvw0123456789"
+
+	FILE_TABLE = `<!DOCTYPE html>
+<meta charset="utf-8" />
+<table border="1"><tbody>
+<tr><th>URL</th><th>Name</th><th>Hash</th><th>Size</th></tr>
+{{range .Files}}
+<tr>
+<td><a href="{{.Url}}">{{.Url}}</a></td>
+<td>{{ .Name }}</td><td><tt>{{ .Hash }}</tt></td>
+<td><tt>{{ .Size }}</tt></td>
+</tr>
+{{end}}
+</tbody></table>`
 )
 
 var (
@@ -29,19 +42,7 @@ var (
 
 func init() {
 	rand.Seed(time.Now().Unix())
-	htmlop = template.Must(template.New("").Parse(`<!DOCTYPE html>
-<meta charset="utf-8" />
-<table border="1"><tbody>
-<tr><th>URL</th><th>Name</th><th>Hash</th><th>Size</th></tr>
-{{range .Files}}
-<tr>
-   <td><a href="{{.Url}}">{{.Url}}</a></td>
-   <td>{{ .Name }}</td>
-   <td><tt>{{ .Hash }}</tt></td>
-   <td><tt>{{ .Size }}</tt></td>
-</tr>
-{{end}}
-</tbody></table>`))
+	htmlop = template.Must(template.New("").Parse(FILE_TABLE))
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -109,16 +110,6 @@ func main() {
 		}
 	})
 
-	gdir := http.StripPrefix("/source/", http.FileServer(http.Dir("./source/")))
-	http.HandleFunc("/source/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/source/":
-			http.ServeFile(w, r, "./source/log.html")
-		default:
-			gdir.ServeHTTP(w, r)
-		}
-	})
-
 	fs := http.FileServer(http.Dir(udir))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -126,7 +117,7 @@ func main() {
 			t.ExecuteTemplate(w, "index.gtml", nil)
 		case "/style.css", "/img.png", "/favicon.ico":
 			http.ServeFile(w, r, "./static"+r.URL.Path)
-		default:
+		default: // preferably to be handled by a web server 
 			fs.ServeHTTP(w, r)
 		}
 	})
