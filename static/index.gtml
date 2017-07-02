@@ -6,12 +6,22 @@
 
 	<main>
 	    <h1 style="font-family: Consolas, Monaco, monospace, monospace;">regist.ra.rs</h1>
-        <p id="toggle" onclick="toggle()">Temp. hosting</p>
-        <p id="highl">Upload anything. Max file size is 32MiB</p>
+            <p id="highl">Upload anything. Max file size is 32MiB</p>
 
-	    <form action="/upload?output=html" method="post" enctype="multipart/form-data">
-		<input type="file" multiple name="files">
-		<input type="submit" value="Submit">
+	    <form action="/upload?output=html" method="post" enctype="multipart/form-data" id="upload">
+		<div id="paste">
+		    <input style="display:none;" name="paste" id="paste-id" value="0"/>
+		    <textarea form="upload"
+			      name="text"
+			      placeholder="Text to upload..."
+			      rows="8"
+			      id="ttu"></textarea><br/>
+		    <input type="submit" value="Submit">
+		</div>
+		<div id="nopaste">
+		    <input type="file" multiple name="files">
+		    <input type="submit" value="Submit">
+		</div>
 
 		<div id="timeout">
 		    <p style="margin: 0.5em">
@@ -53,11 +63,23 @@
     </body>
     <script>
      var tod = document.getElementById("timeout"); // timeout dialog
-     tod.style.display = "none";
+     var paste = document.getElementById("paste");
+     var nopaste = document.getElementById("nopaste");
+     tod.style.display = paste.style.display = "none";
 
-     function toggle() {
+     function toggleT() {
 	 document.getElementById("tov").value = "";
 	 tod.style.display = (tod.style.display != "none") ? "none" : "block";
+     }
+
+     function toggleP() {
+	 document.getElementById("ttu").value = "";
+	 paste.style.display = (paste.style.display != "none") ? "none" : "block";
+	 nopaste.style.display = (nopaste.style.display != "none") ? "none" : "block";
+	 document.getElementById("paste-button").innerHTML =
+	     (paste.style.display == "none") ? "paste" : "upload";
+	 document.getElementById("paste-id").value =
+	     (paste.style.display == "none") ? "" : "paste";
      }
     </script>
 </html>
