@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"html/template"
+	"math"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -37,7 +38,8 @@ const (
 var (
 	hdir, udir   string // hashsum directory, upload directory
 	t, htmlop    *template.Template
-	filec, storc uint64 // file count and total storage
+	filec, storc  int64 // file count and total storage
+	avgfs, meanfs int64 // average and mean file size
 )
 
 func init() {
@@ -57,13 +59,26 @@ func init() {
 			if err != nil {
 				log.Fatalln(err)
 			}
-			filec = uint64(len(files))
+			filec = int64(len(files))
 
 			storc = 0
 			for _, f := range files {
-				storc += uint64(f.Size())
+				storc += int64(f.Size())
 			}
+			avgfs = int64(storc / int64(len(files)))
+			
+			if len(files) % 2 == 1 {
+				midc := int(math.Ceil(float64(len(files)/2)))
+				midf := int(math.Floor(float64(len(files)/2)))
+				meanfs = (files[midc].Size() + files[midf].Size()) / 2
+			} else {
+				mid := int(len(files)/2)
+				meanfs = files[mid].Size()
+			}
+
 			storc /= 1 << 20
+			avgfs /= 1 << 20
+			meanfs /= 1 << 20
 
 			time.Sleep(time.Minute * 30)
 		}
@@ -103,7 +118,7 @@ func main() {
 	http.HandleFunc("/upload.php", upload)
 
 	http.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
-		data := struct{ S, N uint64 }{storc, filec}
+		data := struct{ S, N, A, M int64 }{storc, filec, avgfs, meanfs}
 		err := t.ExecuteTemplate(w, "about.gtml", data)
 		if err != nil {
 			log.Fatalln(err)

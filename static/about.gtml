@@ -24,7 +24,7 @@
 	    </ul>
 
 	    <h1 id="stats">Stats</h1>
-	    <p>Currently serving {{ .N }} files, making up ~{{ .S }} MB.</p>
+	    <p>Currently serving {{ .N }} files, making up ~{{ .S }} MB (avg: {{ .A}} MB, mean: {{ .M }} MB).</p>
 
 	    <h1 name="contact">Contact</h1>
 	    <p>
