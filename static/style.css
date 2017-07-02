@@ -1,55 +1,43 @@
 
 body {
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-    font-size: 1.2em;
-    color: #222;
+    font-family: Consolas, Monaco, monospace, monospace;
+    color: #eee;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
 main {
-    padding: 3em 1em 1em 1em;
-    margin: 3em auto;
-    margin-bottom: 100px;
+    margin: 2em;
+    padding: 2em;
     text-align: center;
-    max-width: 32em;
-    background: rgba(255,255,255,0.9);
+    width: 32em;
+    background: rgba(17,17,17,0.9);
+    border: 1px solid #000;
+    max-height: 100%;
+    -webkit-transition: background 100s;
+
 }
 
-p#highl {
-    font-family: 'Linux Libertine','Georgia','Times',serif;
-    font-style: italic;
-    right-margin: 1em;
-    font-size: 0.9em;
-}
+p, li { text-align: justify; }
 
-#toggle {
-    text-align: center;
-    font-family: Consolas, Monaco, monospace, monospace;
-}
+#toggle { text-align: center; }
 
 #toggle span {
-    color: #89abcd;
+    color: #abcdef;
     cursor: pointer;
 }
 
-#highl, #toggle {
-        min-height: 1em;
-}
-
-main p, main li {
-    text-align: justify;
-    font-size: 0.8em;
-}
-
-h1, h2 {
+h1 {
     text-align: left;
-    margin: 16px;
-    margin-left: 0px;
-    margin-bottom: 0;
+    margin: 0;
 }
 
-img#figure {
+#fig {
     position: fixed;
-    float: left;
     bottom: 1em;
     right: 1em;
     max-width: 200px;
@@ -64,42 +52,44 @@ aside {
     margin: 1em;
     padding: 1em;
     border-radius: 5px;
-    font-size: 0.75em;
     max-width: 20em;
-    border: 1px solid #345678;
+    border: 1px solid #012345;
     background: #abcdef;
+    color: #111;
+    z-index: -1;
 }
 
-div#timeout {
+#timeout {
     margin-top: 16px;
     padding: 8px;
-    border: 1px dashed #ccc;
+    border: 1px solid #222;
 }
 
-nav {
-    color: #ccc;
-    font-size: 0.8em;
-    margin-top: 1em;
-    text-align: right;
+nav { margin-top: 1em; }
+
+textarea {
+    padding: 8px;
+    margin: 8px;
+    min-width: 80%;
+    max-width: 100%;
+    border: 1px solid #222;
+    font-family: Consolas, Monaco, monospace, monospace;
 }
 
-a {
-    color: #89abcd;
+code { font-family: inherit; }
+
+a, code:hover {
+    color: #abcdef;
     text-decoration: none;
 }
 
-textarea {
-    min-width: 80%;
-}
-
 /* MOBILE LAYOUT */
-
-@media (max-width: 600px) {
-    main {
-        margin-top: 0;
+@media (max-width: 40em) {
+    body {
+	display: block;
     }
-
-    body > img {
+    
+    img {
         display: none;
     }
 
@@ -109,6 +99,5 @@ textarea {
         margin: 0;
         border-radius: 0;
         border-width: 1px 0 0 0;
-        font-size: 0.8em;
     }
 }

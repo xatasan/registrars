@@ -2,7 +2,7 @@
 <html lang="en">
     {{ template "head.gtml" "regist.ra.rs" }}
     <body>
-	<img src="/img.png" id="figure" />
+	<img src="/img.png" id="fig" />
 
 	<main>
 	    <h1 style="font-family: Consolas, Monaco, monospace, monospace;">regist.ra.rs</h1>
