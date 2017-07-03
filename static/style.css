@@ -14,12 +14,10 @@ main {
     margin: 2em;
     padding: 2em;
     text-align: center;
-    width: 32em;
-    background: rgba(17,17,17,0.9);
+    max-width: 32em;
+    background: rgba(37,37,37,0.9);
     border: 1px solid #000;
-    max-height: 100%;
-    -webkit-transition: background 100s;
-
+    
 }
 
 p, li { text-align: justify; }
@@ -84,9 +82,14 @@ a, code:hover {
 }
 
 /* MOBILE LAYOUT */
-@media (max-width: 40em) {
+@media (max-width: 550px) {
     body {
 	display: block;
+        margin: 0;
+    }
+    
+    main {
+        margin: 0;
     }
     
     img {
