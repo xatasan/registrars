@@ -24,7 +24,25 @@
 	    </ul>
 
 	    <h1 id="stats">Stats</h1>
-	    <p>Currently serving {{ .N }} files, making up ~{{ .S }} MB (avg: {{ .A}} MB, mean: {{ .M }} MB).</p>
+	    <table id="stat"><tbody>
+		<tr>
+		    <td>Files hosted</td>
+		    <td>{{ .N }}</td>
+		</tr>
+		<tr>
+		    <td>Total size</td>
+		    <td>{{ printf "%.4f" .S }} MB</td>
+		</tr>
+		<tr>
+		    <td>Average size</td>
+		    <td>{{ printf "%.4f" .A }} MB</td>
+		</tr>
+		<tr>
+		    <td>Mean size</td>
+		    <td>{{ printf "%.4f" .M }} MB</td>
+		</tr>
+	    </tbody></table>
+	    <p style="font-size: 0.6em; text-align: right;">Calculated every 30 minutes.</p>
 
 	    <h1 name="contact">Contact</h1>
 	    <p>

@@ -81,6 +81,14 @@ a, code:hover {
     text-decoration: none;
 }
 
+table#stat {
+    margin: 0 auto;
+}
+
+table#stat td { padding: 2px 8px; }
+table#stat td:nth-child(1) { text-align: left; }
+table#stat td:nth-child(2) { text-align: right; }
+
 /* MOBILE LAYOUT */
 @media (max-width: 550px) {
     body {

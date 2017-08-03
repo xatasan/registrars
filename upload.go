@@ -61,15 +61,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64, to time.Dura
 			return File{}, err
 		}
 
-		if to > 0 {
-			fmt.Printf("%s\t%s\n", time.Now().Add(to).Format(time.UnixDate), name)
-			time.AfterFunc(to, func() {
-				if err := os.Remove(udir + name); err != nil {
-					log.Println(err)
-				}
-			})
-		}
-
+		recordFile(name, to)
 		return File{
 			Name: orig,
 			Url:  uurl + name,
