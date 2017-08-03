@@ -4,22 +4,44 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 	"time"
 )
 
-func recordFile(filename string, timeout time.Duration) {
+func recordFile(filename, hashsum string, timeout time.Duration) {
 	if timeout > 0 {
 		fmt.Printf("%s\t%s\n", time.Now().Add(timeout).Format(time.UnixDate), filename)
 		time.AfterFunc(timeout, func() {
 			if err := os.Remove(udir + filename); err != nil {
 				log.Println(err)
 			}
+
+			if !keeptf {
+				files, err := ioutil.ReadDir(udir)
+				if err != nil {
+					log.Panicln(err)
+				}
+				for _, file := range files {
+					hash, err := os.Readlink(udir + file.Name())
+					if err != nil {
+						log.Panicln(err)
+					}
+					fmt.Sscanf(hash, hdir+"%s", &hash)
+
+					if hash == hashsum && filename != file.Name() {
+						return //
+					}
+				}
+
+				if err := os.Remove(hdir + hashsum); err != nil {
+					log.Println(err)
+				}
+			}
 		})
 	}
-
 }
 
 func regenFrom(inp io.Reader) {

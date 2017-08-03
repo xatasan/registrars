@@ -61,7 +61,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64, to time.Dura
 			return File{}, err
 		}
 
-		recordFile(name, to)
+		recordFile(name, hash, to)
 		return File{
 			Name: orig,
 			Url:  uurl + name,

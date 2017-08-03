@@ -32,6 +32,7 @@ const (
 
 var (
 	hdir, udir string // hashsum directory, upload directory
+	keeptf     bool
 	t, htmlop  *template.Template
 )
 
@@ -47,6 +48,8 @@ func init() {
 	}
 	hdir = wd + "/hdir/"
 	udir = wd + "/udir/"
+
+	keeptf = (os.Getenv("KEEPHF") != "")
 
 	// regenerate old temporary files
 	go regenFrom(os.Stdin)
