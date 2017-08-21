@@ -45,12 +45,7 @@
 	    <p style="font-size: 0.6em; text-align: right;">Calculated every 30 minutes.</p>
 
 	    <h1 name="contact">Contact</h1>
-	    <p>
-		To report abuse (Notice and Take-Down, etc) or any other
-		matter, contact me <a href="mailto:xatasan@firemail.cc">via email</a>
-		or <a href="https://twitter.com/xatasan">via twitter</a>.
-		Twitter will also be used for general updates.
-	    </p>
+	    <p>[contact details]</p>
 
 	    {{ template "nav.gtml" }}
 	</main>
