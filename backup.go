@@ -27,7 +27,8 @@ func recordFile(filename, hashsum string, timeout time.Duration) {
 				for _, file := range files {
 					hash, err := os.Readlink(udir + file.Name())
 					if err != nil {
-						log.Panicln(err)
+						log.Println(err)
+						continue
 					}
 					fmt.Sscanf(hash, hdir+"%s", &hash)
 
