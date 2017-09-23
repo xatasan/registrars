@@ -25,8 +25,13 @@ addresses. To change this behaviour, specify an environmental variable
 "$HOST", eg.:
 
 ```sh
-HOST="192.168.1.107:9090" ./registrars
+HOST="192.168.1.107:9090" ./registrars https://u.fileserver.com/f/
 ```
+
+The first argument specifies the base url, onto which all uploaded
+filenames are appended. So for example if the filename `Hrke417i.png`
+were to be generated, registrars would create the link
+`https://u.fileserver.com/f/Hrke417i.png`.
 
 Auto-deleting files
 ===================

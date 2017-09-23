@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"math/rand"
@@ -10,9 +11,8 @@ import (
 )
 
 const (
-	uurl = "https://s.te.rs/" // upload url
-	flen = 8                  // file name length
-	maxf = 32e6               // max file size (byte)
+	flen = 8    // file name length
+	maxf = 32e6 // max file size (byte)
 
 	alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtsuvw0123456789"
 
@@ -31,9 +31,9 @@ const (
 )
 
 var (
-	hdir, udir string // hashsum directory, upload directory
-	keeptf     bool
-	t, htmlop  *template.Template
+	uurl, hdir, udir string // hashsum directory, upload directory
+	keeptf           bool
+	t, htmlop        *template.Template
 )
 
 func init() {
@@ -57,6 +57,10 @@ func init() {
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Fprintf(os.Stderr, "usage: %s [base url]\n", os.Args[0])
+	}
+	uurl = os.Args[1]
 	fs := http.FileServer(http.Dir(udir))
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/upload.php", upload)
