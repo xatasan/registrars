@@ -29,7 +29,11 @@ type File struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
 	Hash string `json:"hash"`
-	Size int    `json:"size"`
+	Size int64  `json:"size"`
+}
+
+func init() {
+	rand.Seed(time.Now().Unix())
 }
 
 func processFile(in io.Reader) (string, string, error) { // name, hash
@@ -65,7 +69,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64, to time.Dura
 			Name: orig,
 			Url:  uurl + name,
 			Hash: hash,
-			Size: int(size),
+			Size: int64(size),
 		}, nil
 	}
 
@@ -89,7 +93,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64, to time.Dura
 		Name: orig,
 		Url:  uurl + name,
 		Hash: hash,
-		Size: int(size),
+		Size: int64(size),
 	}, nil
 }
 
@@ -160,7 +164,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 	var res Response
 	res.Success = true
 
-	var to, unit time.Duration
+	var timeout, unit time.Duration
 
 	if _, ok := form.Value["tunit"]; ok {
 		switch form.Value["tunit"][0] {
@@ -181,13 +185,13 @@ func upload(w http.ResponseWriter, req *http.Request) {
 		if raw_to[0] != "" {
 			nto, err := strconv.Atoi(raw_to[0])
 			if err == nil {
-				to = time.Duration(nto) * unit
+				timeout = time.Duration(nto) * unit
 			}
 		}
 	}
 
 	if len(form.Value["paste"]) > 0 && form.Value["paste"][0] == "paste" {
-		file, err := uploadText(strings.NewReader(form.Value["text"][0]), to)
+		file, err := uploadText(strings.NewReader(form.Value["text"][0]), timeout)
 		if err != nil {
 			res.Success = false
 			res.Errorcode = 500
@@ -217,11 +221,11 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			case ".exe", ".bat", ".cmd", ".msi", ".vbs", ".scr", "":
 				res.Success = false
 				res.Errorcode = 403
-				res.Description = fh.Filename + "not allowed to be uploaded"
+				res.Description = fh.Filename + "not allowed timeout be uploaded"
 				break
 			}
 
-			file, err := uploadFile(fh, to)
+			file, err := uploadFile(fh, timeout)
 			if err != nil {
 				res.Success = false
 				res.Errorcode = 500
@@ -231,7 +235,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			res.Files = append(res.Files, file)
 		}
 
-		fsum := 0
+		var fsum int64
 		for _, f := range res.Files {
 			fsum += f.Size
 		}
@@ -269,7 +273,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			fmt.Fprintf(w, "%s\n", strings.Join(urls, "\n"))
 		case "html":
 			w.Header().Set("Content-Type", "text/html")
-			htmlop.Execute(w, res)
+			t.ExecuteTemplate(w, "files", res)
 		case "csv":
 			w.Header().Set("Content-Type", "text/cvs")
 			fmt.Fprint(w, "name,url,hash,size\n")

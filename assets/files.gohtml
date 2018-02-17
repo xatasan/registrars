@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<table border="1"><tbody>
+<tr><th>URL</th><th>Name</th><th>Hash</th><th>Size</th></tr>
+{{ range .Files }}
+<tr>
+<td><a href="{{ .Url }}">{{ .Url }}</a></td>
+<td>{{ .Name }}</td><td><tt>{{ .Hash }}</tt></td>
+<td><tt>{{ .Size }}</tt></td>
+</tr>
+{{end}}
+</tbody></table>

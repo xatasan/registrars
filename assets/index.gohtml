@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<title>A Pomf Clone</title>
+	<meta name="viewport" content="width=device-width" />
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="/style.css" />
+	<link rel="icon" href="favicon.ico" />
+	<style>     
+	 main, aside {
+	     font-family: sans-serif;
+	     max-width: 40em;
+	     float: left;
+	     padding: 8px;
+	 }
+
+	 blockquote {
+	     padding: 8px;
+	     background: #bbf;
+	 }
+	</style>
+    </head>
+    <body>
+	<main>
+	    <h1>Upload a file</h1>
+	    <form action="/upload?output=html"
+		  method="post"
+		  enctype="multipart/form-data">
+		<input type="file"
+		       name="files"
+		       multiple />
+		<br/>
+		<input type="number" name="timeout" value="0">
+		<select name="tunit">
+		    <option value="m">Minute(s)</option>
+		    <option value="h">Hour(s)</option>
+		    <option value="d">Day(s)</option>
+		    <option value="w">Week(s)</option>
+		</select>
+		<br/>
+		<input type="submit" />
+	    </form>
+	    <hr/>
+	    <h3>Upload text</h3>
+	    <form action="/upload?output=html"
+		  method="post"
+		  enctype="multipart/form-data">
+		<input style="display:none;"
+		       name="paste"
+		       value="0"/>
+		<textarea form="upload"
+			  name="text"
+			  placeholder="Text to upload..."
+			  rows="8"
+			  id="ttu">
+		</textarea>
+		<br/>
+		<input type="number" name="timeout" value="0">
+		<select name="tunit">
+		    <option value="m">Minute(s)</option>
+		    <option value="h">Hour(s)</option>
+		    <option value="d">Day(s)</option>
+		    <option value="w">Week(s)</option>
+		</select>
+		<br/>
+		<input type="submit" />
+	    </form>
+	</main>
+	
+	<aside>
+	    <blockquote>
+		<b>Note:</b> If you got here from an unexpected email, 
+		or a weird imageboard post, you probably shouldn't trust it.
+	    </blockquote>
+	    
+	    <h1><code>registrars</code></h1>
+	    <h2>Upload anything. Max file size is 32MiB</h2>
+	    <p>
+		This is a public file server in the Pomf
+		tradition. Anyone can upload anything, without any
+		guarantee. Files might be deleted if their content has
+		legal problem, such that the it endangers the
+		operation of the whole service, or under other
+		<em>sepcific</em> circumstances.
+	    </p>
+
+	    <h3>Notes</h3>
+	    <ul>
+    		<li>Maximum upload file size is 32MiB. All uploads are public.</li>
+    		<li>Currently all content is allowed under US
+                    law. Malware and child porn is not welcome here.</li>
+    		<li>All filetypes are allowed, except exe, bat, cmd, msi or similar
+                    (Due to malware).</li>
+    		<li>No logs are kept, no logs over uploading nor over downloading.</li>
+    		<li>We're non-profit and offer this service for free without ads.</li>
+    		<li>For removal of a file or to submit abuse reports (DMCA) see our
+                    contact section.</li>
+		<li>All files were uploaded by anonymous users. The operators are not
+                    responsible for any files hosted on this site.</li>
+		<li>Files <em>can</em> be uploaded with a timeout, so that they will self-delete
+		    themselves after a specified period. To disable the timeout, set it to zero.</li>
+	    </ul>
+
+
+	    <h3>Statistics</h3>
+	    <p><small>Calculated every 30 minutes.</small></p>
+	    <table><tbody>
+		<tr>
+		    <td>Files hosted</td>
+		    <td>{{ .N }}</td>
+		</tr>
+		<tr>
+		    <td>Total size</td>
+		    <td>{{ printf "%.4f" .S }} MB</td>
+		</tr>
+		<tr>
+		    <td>Average size</td>
+		    <td>{{ printf "%.4f" .A }} MB</td>
+		</tr>
+		<tr>
+		    <td>Mean size</td>
+		    <td>{{ printf "%.4f" .M }} MB</td>
+		</tr>
+	    </tbody></table>
+
+	    <h3>About</h3>
+	    <p>
+		If there are any [legal, technical, ...] issues with
+		any content hosted on this server, please contact the
+		<a href="mailto:xatasan@firemail.cc">admin</a>.
+	    </p>
+	    
+	</main>
+</html>

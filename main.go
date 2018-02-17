@@ -1,45 +1,33 @@
 package main
 
+// go:generate go-bindata -o assets.go assets/
+
 import (
 	"fmt"
 	"html/template"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
-	flen = 8    // file name length
-	maxf = 32e6 // max file size (byte)
-
-	alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtsuvw0123456789"
-
-	FILE_TABLE = `<!DOCTYPE html>
-<meta charset="utf-8" />
-<table border="1"><tbody>
-<tr><th>URL</th><th>Name</th><th>Hash</th><th>Size</th></tr>
-{{range .Files}}
-<tr>
-<td><a href="{{.Url}}">{{.Url}}</a></td>
-<td>{{ .Name }}</td><td><tt>{{ .Hash }}</tt></td>
-<td><tt>{{ .Size }}</tt></td>
-</tr>
-{{end}}
-</tbody></table>`
+	flen = 6       // file name length
+	maxf = 1 << 32 // max file size (byte)
+	alph = "uncopyrightable"
 )
 
 var (
-	uurl, hdir, udir string // hashsum directory, upload directory
-	keeptf           bool
-	t, htmlop        *template.Template
+	uurl       string // upload url
+	hdir, udir string // hashsum directory, upload directory
+	keeptf     bool
+	t          *template.Template
 )
 
-func init() {
-	rand.Seed(time.Now().Unix())
-	htmlop = template.Must(template.New("").Parse(FILE_TABLE))
-	t = template.Must(template.ParseGlob("./static/*.gtml"))
+func main() {
+	if len(os.Args) <= 1 {
+		fmt.Fprintf(os.Stderr, "usage: %s [uurl]", os.Args[0])
+		os.Exit(1)
+	}
 
 	// setup file directories
 	wd, err := os.Getwd()
@@ -49,41 +37,30 @@ func init() {
 	hdir = wd + "/hdir/"
 	udir = wd + "/udir/"
 
-	keeptf = (os.Getenv("KEEPHF") != "")
+	// load template
+	t = template.New("reg")
+	for _, f := range []string{"index", "files"} {
+		data, err := Asset("assets/" + f + ".gohtml")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		t = template.Must(t.New(f).Parse(string(data)))
+	}
+
+	// check whether to keep hashfiles
+	keeptf = os.Getenv("KEEPHF") != ""
 
 	// regenerate old temporary files
 	go regenFrom(os.Stdin)
 
-}
-
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "usage: %s [base url]\n", os.Args[0])
-	}
-	uurl = os.Args[1]
-	fs := http.FileServer(http.Dir(udir))
+	// start HTTP server
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/upload.php", upload)
-	http.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
-		err := t.ExecuteTemplate(w, "about.gtml", data)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err := t.ExecuteTemplate(w, "index", data)
 		if err != nil {
 			log.Fatalln(err)
 		}
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/":
-			t.ExecuteTemplate(w, "index.gtml", nil)
-		case "/style.css", "/img.png", "/favicon.ico":
-			http.ServeFile(w, r, "./static"+r.URL.Path)
-		default: // preferably to be handled by a web server
-			fs.ServeHTTP(w, r)
-		}
-	})
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = ":8080"
-	}
-	log.Printf("Starting server on %q\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
 }
