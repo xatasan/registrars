@@ -62,5 +62,5 @@ func main() {
 			log.Fatalln(err)
 		}
 	})
-	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
+	log.Fatal(http.ListenAndServe(os.Getenv("HOST"), nil))
 }
