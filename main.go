@@ -1,6 +1,6 @@
 package main
 
-// go:generate go-bindata -o assets.go assets/
+//go:generate go-bindata -o assets.go assets/
 
 import (
 	"fmt"
