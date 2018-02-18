@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <meta charset="utf-8" />
+<style>
+ tt{font-family:monospace,monospace}
+ table{padding:4px;margin:4px auto;border-collapse:collapse}
+ th,td{padding:4px;margin:0;border:1px solid silver}
+</style>
 <table border="1"><tbody>
-<tr><th>URL</th><th>Name</th><th>Hash</th><th>Size</th></tr>
-{{ range .Files }}
-<tr>
-<td><a href="{{ .Url }}">{{ .Url }}</a></td>
-<td>{{ .Name }}</td><td><tt>{{ .Hash }}</tt></td>
-<td><tt>{{ .Size }}</tt></td>
-</tr>
-{{end}}
+	<tr><th>File</th><th>Name</th><th>Hashcode</th><th>Size</th></tr>
+	{{ range .Files }}
+		<tr>
+			<td><a href="{{ .Url }}">{{ .Url }}</a></td>
+			<td>{{ .Name }}</td>
+			<td><tt>{{ .Hash }}</tt></td>
+			<td>{{ .Size }}</td>
+		</tr>
+	{{end}}
 </tbody></table>
