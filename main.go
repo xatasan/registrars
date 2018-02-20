@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/user"
 )
 
 const (
@@ -62,5 +63,11 @@ func main() {
 			log.Fatalln(err)
 		}
 	})
-	log.Fatal(http.ListenAndServe(os.Getenv("HOST"), nil))
+
+	host := os.Getenv("HOST")
+	u, err := user.Current()
+	if err == nil && u.Uid != "0" && host == "" {
+		host = ":8080"
+	}
+	log.Fatal(http.ListenAndServe(host, nil))
 }
