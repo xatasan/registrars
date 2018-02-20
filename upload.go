@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -19,21 +20,34 @@ import (
 )
 
 type Response struct {
-	Success     bool   `json:"success"`
-	Errorcode   int    `json:"errorcode"`
-	Description string `json:"description"`
-	Files       []File `json:"files"`
+	Success     bool    `json:"success"`
+	Errorcode   int     `json:"errorcode"`
+	Description string  `json:"description"`
+	Files       []*File `json:"files"`
 }
 
 type File struct {
-	Name string `json:"name"`
-	Url  string `json:"url"`
-	Hash string `json:"hash"`
-	Size int64  `json:"size"`
+	Uname   string
+	Name    string   `json:"name"`
+	Url     *url.URL `json:"url"`
+	Hash    string   `json:"hash"`
+	Size    int64    `json:"size"`
+	timeout time.Time
 }
 
 func init() {
 	rand.Seed(time.Now().Unix())
+}
+
+func toFile(str string) *File {
+	var timeout int64
+	var name, hash string
+	fmt.Sscanf(str, "%d\t%s\t%s", timeout, name, hash)
+	return &File{
+		Uname:   name,
+		Hash:    hash,
+		timeout: time.Unix(timeout, 0),
+	}
 }
 
 func processFile(in io.Reader) (string, string, error) { // name, hash
@@ -48,56 +62,62 @@ func processFile(in io.Reader) (string, string, error) { // name, hash
 		name := ""
 		for i := 0; i < flen; i++ {
 			name += string(alph[rand.Intn(len(alph))])
-
 		}
 		if _, err := os.Stat(udir + name); os.IsNotExist(err) {
 			return name, hsum, nil
 		}
 	}
-
 }
 
-func uploadData(file *os.File, orig, name, hash string, size int64, to time.Duration) (File, error) {
+func uploadData(file *os.File, orig, name, hash string, size int64) (*File, error) {
 	var err error
 	if _, err = os.Stat(hdir + hash); err == nil {
 		if err = os.Symlink(hdir+hash, udir+name); err != nil {
-			return File{}, err
+			return nil, err
 		}
 
-		recordFile(name, hash, to)
-		return File{
-			Name: orig,
-			Url:  uurl + name,
-			Hash: hash,
-			Size: int64(size),
+		u, err := url.Parse(uurl + name)
+		if err != nil {
+			return nil, err
+		}
+		return &File{
+			Uname: name,
+			Name:  orig,
+			Url:   u,
+			Hash:  hash,
+			Size:  int64(size),
 		}, nil
 	}
 
 	hfile, err := os.Create(hdir + hash)
 	if err != nil {
-		return File{}, err
+		return nil, err
 	}
 
 	file.Close()
 	file, err = os.Open(file.Name())
 	if _, err = io.Copy(hfile, file); err != nil {
-		return File{}, err
+		return nil, err
 	}
 
 	if err = os.Symlink(hdir+hash, udir+name); err != nil {
-		return File{}, err
+		return nil, err
 	}
 
-	recordFile(name, hash, to)
-	return File{
-		Name: orig,
-		Url:  uurl + name,
-		Hash: hash,
-		Size: int64(size),
+	u, err := url.Parse(uurl + name)
+	if err != nil {
+		return nil, err
+	}
+	return &File{
+		Name:  orig,
+		Uname: name,
+		Url:   u,
+		Hash:  hash,
+		Size:  int64(size),
 	}, nil
 }
 
-func uploadText(inp io.Reader, to time.Duration) (file File, err error) {
+func uploadText(inp io.Reader) (file *File, err error) {
 	tmp, err := ioutil.TempFile("", "")
 	if err != nil {
 		return
@@ -118,10 +138,10 @@ func uploadText(inp io.Reader, to time.Duration) (file File, err error) {
 	}
 	name += ".txt"
 
-	return uploadData(tmp, "paste.txt", name, hash, size, to)
+	return uploadData(tmp, "paste.txt", name, hash, size)
 }
 
-func uploadFile(fh *multipart.FileHeader, to time.Duration) (file File, err error) {
+func uploadFile(fh *multipart.FileHeader) (file *File, err error) {
 	tmp, err := ioutil.TempFile("", fh.Filename)
 	if err != nil {
 		return
@@ -145,26 +165,28 @@ func uploadFile(fh *multipart.FileHeader, to time.Duration) (file File, err erro
 	}
 	name += path.Ext(fh.Filename)
 
-	return uploadData(tmp, fh.Filename, name, hash, size, to)
+	return uploadData(tmp, fh.Filename, name, hash, size)
 }
 
 func upload(w http.ResponseWriter, req *http.Request) {
-	mpr, err := req.MultipartReader()
-	if err != nil {
-		t.Lookup("error.gtml").Execute(w, err.Error())
-		return
-	}
-
-	form, err := mpr.ReadForm(1e10)
-	if err != nil {
-		t.ExecuteTemplate(w, "error.gtml", err.Error())
-		return
-	}
-
-	var res Response
+	var (
+		res     Response
+		unit    time.Duration
+		timeout time.Time
+	)
 	res.Success = true
 
-	var timeout, unit time.Duration
+	mpr, err := req.MultipartReader()
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+		return
+	}
+
+	form, err := mpr.ReadForm(1 << 32)
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+		return
+	}
 
 	if _, ok := form.Value["tunit"]; ok {
 		switch form.Value["tunit"][0] {
@@ -182,16 +204,14 @@ func upload(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if raw_to, ok := form.Value["timeout"]; ok {
-		if raw_to[0] != "" {
-			nto, err := strconv.Atoi(raw_to[0])
-			if err == nil {
-				timeout = time.Duration(nto) * unit
-			}
+		nto, err := strconv.Atoi(raw_to[0])
+		if err == nil && nto > 0 {
+			timeout = time.Now().Add(time.Duration(nto) * unit)
 		}
 	}
 
-	if len(form.Value["paste"]) > 0 && form.Value["paste"][0] == "paste" {
-		file, err := uploadText(strings.NewReader(form.Value["text"][0]), timeout)
+	if _, ok := form.Value["text"]; ok {
+		file, err := uploadText(strings.NewReader(form.Value["text"][0]))
 		if err != nil {
 			res.Success = false
 			res.Errorcode = 500
@@ -199,9 +219,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 		}
 
 		if file.Size > maxf {
-			var name string
-			fmt.Sscanf(file.Name, uurl+"%s", &name)
-			os.Remove(udir + name)
+			os.Remove(udir + file.Uname)
 			os.Remove(hdir + file.Hash)
 
 			res.Success = false
@@ -225,7 +243,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 				break
 			}
 
-			file, err := uploadFile(fh, timeout)
+			file, err := uploadFile(fh)
 			if err != nil {
 				res.Success = false
 				res.Errorcode = 500
@@ -242,10 +260,8 @@ func upload(w http.ResponseWriter, req *http.Request) {
 
 		if fsum > maxf {
 			for _, f := range res.Files {
-				var name string
-				fmt.Sscanf(f.Url, uurl+"%s", &name)
-				go os.Remove(udir + name)
-				go os.Remove(hdir + f.Hash)
+				os.Remove(udir + f.Uname)
+				os.Remove(hdir + f.Hash)
 			}
 
 			res.Success = false
@@ -255,20 +271,27 @@ func upload(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	if res.Success == true {
+		for _, f := range res.Files {
+			f.timeout = timeout
+			files <- f
+		}
+	}
+
 	if res.Success {
 		switch req.URL.Query().Get("output") {
 		case "gyazo":
 			w.Header().Set("Content-Type", "text/plain")
 			var urls []string
 			for _, f := range res.Files {
-				urls = append(urls, f.Url)
+				urls = append(urls, f.Url.String())
 			}
 			fmt.Fprintf(w, "%s", strings.Join(urls, "\n"))
 		case "text":
 			w.Header().Set("Content-Type", "text/plain")
 			var urls []string
 			for _, f := range res.Files {
-				urls = append(urls, f.Url)
+				urls = append(urls, f.Url.String())
 			}
 			fmt.Fprintf(w, "%s\n", strings.Join(urls, "\n"))
 		case "html":
@@ -279,7 +302,12 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			fmt.Fprint(w, "name,url,hash,size\n")
 			csvw := csv.NewWriter(w)
 			for _, f := range res.Files {
-				csvw.Write([]string{f.Name, f.Url, f.Hash, fmt.Sprintf("%d", f.Size)})
+				csvw.Write([]string{
+					f.Name,
+					f.Url.String(),
+					f.Hash,
+					fmt.Sprintf("%d", f.Size),
+				})
 			}
 		default:
 			w.Header().Set("Content-Type", "application/json")

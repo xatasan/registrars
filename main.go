@@ -23,12 +23,7 @@ var (
 	t          *template.Template
 )
 
-func main() {
-	if len(os.Args) <= 1 {
-		fmt.Fprintf(os.Stderr, "usage: %s [uurl]", os.Args[0])
-		os.Exit(1)
-	}
-
+func init() {
 	// setup file directories
 	wd, err := os.Getwd()
 	if err != nil {
@@ -49,9 +44,14 @@ func main() {
 
 	// check whether to keep hashfiles
 	keeptf = os.Getenv("KEEPHF") != ""
+}
 
-	// regenerate old temporary files
-	go regenFrom(os.Stdin)
+func main() {
+	if len(os.Args) <= 1 {
+		fmt.Fprintf(os.Stderr, "usage: %s [uurl]", os.Args[0])
+		os.Exit(1)
+	}
+	uurl = os.Args[1]
 
 	// start HTTP server
 	http.HandleFunc("/upload", upload)
