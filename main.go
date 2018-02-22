@@ -31,6 +31,8 @@ func init() {
 	}
 	hdir = wd + "/hdir/"
 	udir = wd + "/udir/"
+	os.Mkdir(hdir, os.ModeDir)
+	os.Mkdir(udir, os.ModeDir)
 
 	// load template
 	t = template.New("reg")
