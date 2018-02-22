@@ -39,6 +39,11 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
+func (f *File) String() string {
+	return fmt.Sprintf("%d\t%s\t%s\n",
+		f.timeout.Unix(), f.Uname, f.Hash)
+}
+
 func toFile(str string) *File {
 	var timeout int64
 	var name, hash string
