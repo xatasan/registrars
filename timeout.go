@@ -27,7 +27,6 @@ func (pq *pQueue) Less(i, j int) bool {
 }
 
 func (pq *pQueue) Swap(i, j int) {
-	fmt.Printf("Swap %d and %d in %s\n", i, j, *pq)
 	if i >= 0 && j >= 0 {
 		(*pq)[i], (*pq)[j] = (*pq)[j], (*pq)[i]
 	}
@@ -83,26 +82,39 @@ var (
 	files  chan<- *File
 	hashes map[string][]string
 	queue  pQueue
+	tolog  *os.File
 )
 
 func init() {
-	stat, err := os.Stdin.Stat()
+	istat, err := os.Stdin.Stat()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if (stat.Mode() & os.ModeCharDevice) == 0 {
+	if (istat.Mode() & os.ModeCharDevice) == 0 {
 		_, err := queue.ReaderFrom(os.Stdin)
 		if err != nil {
 			log.Println(err)
 		}
-	} // only read is piped input
+	} // only read if piped input
+
+	ostat, err := os.Stdin.Stat()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if (ostat.Mode() & os.ModeCharDevice) != 0 {
+		tolog, err = os.Create(fmt.Sprintf("timeout.%d", os.Getpid()))
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		tolog = os.Stdout
+	}
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
 	go func() {
 		<-c
-		queue.WriteTo(os.Stdout)
-		os.Exit(0)
+		tolog.Close()
 	}()
 
 	fc := make(chan *File)
@@ -161,7 +173,7 @@ func timeoutWorker(files <-chan *File, q *pQueue) {
 		if q.Len() >= 2 && (*q)[0].timeout.Before(next) {
 			timer.Reset(time.Until((*q)[0].timeout))
 		}
-
+		tolog.WriteString(file.String())
 	}
 }
 
