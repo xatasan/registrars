@@ -3,7 +3,6 @@ package main
 //go:generate go-bindata -o assets.go assets/
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -48,26 +47,30 @@ func init() {
 }
 
 func main() {
-	if len(os.Args) <= 1 {
-		fmt.Fprintf(os.Stderr, "usage: %s [uurl]", os.Args[0])
-		os.Exit(1)
+	host := os.Getenv("HOST")
+	u, err := user.Current()
+	if err == nil && u.Uid != "0" && host == "" {
+		host = ":8080"
 	}
-	uurl = os.Args[1]
+
+	if len(os.Args) > 1 {
+		uurl = os.Args[1]
+	}
 
 	// start HTTP server
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/upload.php", upload)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if len(os.Args) <= 1 && r.URL.Path != "/" {
+			http.FileServer(http.Dir(udir)).ServeHTTP(w, r)
+			return
+		}
+
 		err := t.ExecuteTemplate(w, "index", data)
 		if err != nil {
 			log.Fatalln(err)
 		}
 	})
 
-	host := os.Getenv("HOST")
-	u, err := user.Current()
-	if err == nil && u.Uid != "0" && host == "" {
-		host = ":8080"
-	}
 	log.Fatal(http.ListenAndServe(host, nil))
 }
