@@ -168,7 +168,16 @@ func uploadFile(fh *multipart.FileHeader) (file *File, err error) {
 	if err != nil {
 		return
 	}
-	name += path.Ext(fh.Filename)
+	switch {
+	case strings.HasSuffix(fh.Filename, ".tar.gz"):
+		name += ".tar.gz"
+	case strings.HasSuffix(fh.Filename, ".tar.bz2"):
+		name += ".tar.bz2"
+	case strings.HasSuffix(fh.Filename, ".tar.xz"):
+		name += ".tar.xz"
+	default:
+		name += path.Ext(fh.Filename)
+	}
 
 	return uploadData(tmp, fh.Filename, name, hash, size)
 }
