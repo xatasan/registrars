@@ -115,6 +115,7 @@ func init() {
 	go func() {
 		<-c
 		tolog.Close()
+		os.Exit(1)
 	}()
 
 	fc := make(chan *File)
