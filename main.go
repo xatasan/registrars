@@ -21,6 +21,7 @@ var (
 	hdir, udir string // hashsum directory, upload directory
 	keeptf     bool
 	t          *template.Template
+	index      []byte
 )
 
 func init() {
@@ -68,7 +69,7 @@ func main() {
 			return
 		}
 
-		err := t.ExecuteTemplate(w, "index", data)
+		err := w.Write(index)
 		if err != nil {
 			log.Fatalln(err)
 		}

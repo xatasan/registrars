@@ -57,6 +57,8 @@ func init() {
 			meanfs /= 1 << 20
 			data = Data{storc, filec, avgfs, meanfs}
 
+			err := t.ExecuteTemplate(w, "index", index)
+
 			time.Sleep(time.Minute * 30)
 		}
 	}()
