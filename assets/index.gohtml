@@ -81,9 +81,9 @@
         </main>
 		
 		<aside>
-			<h1><tt>registrars</tt></h1>
+			<h1>{{ .Name }}</h1>
             
-            <h2>Upload anything. Max file size is 32MiB</h2>
+            <h2>Upload anything. Max file size is {{ bytes .MaxSize }}</h2>
 			<p>
 				This is a public file server in the Pomf
 				tradition. Anyone can upload anything, without any
@@ -100,7 +100,7 @@
 
 			<h3>Notes</h3>
 			<ul>
-    			<li>Maximum upload file size is 32MiB. All uploads are public.</li>
+    			<li>Maximum upload file size is {{ bytes .MaxSize }}. All uploads are public.</li>
     			<li>Currently all content is allowed under US
                     law. Malware and child porn is not welcome here.</li>
     			<li>All filetypes are allowed, except exe, bat, cmd, msi
@@ -118,28 +118,83 @@
 					specified period. <strong>To
 					disable the timeout, set it to zero.</strong></li>
 			</ul>
+			{{ with .Stats }}
+				<h3>Statistics
+					<span style="font-weight:normal;font-size:smaller">(Calculated every 30 minutes)</span>
+				</h3>
+				<table>
+					<thead>
+						<tr>
+							<th></th>
+							<th>Unique</th>
+							<th>Overall</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Overall Files</td>
+							<td>{{ .Hash.Count }}</td>
+							<td>{{ .File.Count }}</td>
+						</tr>
+						<tr>
+							<td>Total size</td>
+							<td>{{ bytes .Hash.Sum }}</td>
+							<td>{{ bytes .File.Sum }}</td>
+						</tr>
+						<tr>
+							<td>Arithmetic Mean</td>
+							<td>{{ bytes .Hash.AritMean }}</td>
+							<td>{{ bytes .File.AritMean }}</td>
+						</tr>
+						<tr>
+							<td>Harmonic Mean</td>
+							<td>{{ bytes .Hash.HarmMean }}</td>
+							<td>{{ bytes .File.HarmMean }}</td>
+						</tr>
+						<tr>
+							<td>Contraharmonic Mean</td>
+							<td>{{ bytes .Hash.CHarmMean }}</td>
+							<td>{{ bytes .File.CHarmMean }}</td>
+						</tr>
+						<tr>
+							<td>Geometric Mean</td>
+							<td>{{ bytes .Hash.GeomMean }}</td>
+							<td>{{ bytes .File.GeomMean }}</td>
+						</tr>
+						<tr>
+							<td>Turncated Mean</td>
+							<td>{{ bytes .Hash.TurncMean }}</td>
+							<td>{{ bytes .File.TurncMean }}</td>
+						</tr>
+						<tr>
+							<td>Winsorized Mean</td>
+							<td>{{ bytes .Hash.WinsMean }}</td>
+							<td>{{ bytes .File.WinsMean }}</td>
+						</tr>
+						<tr>
+							<td>Midrange</td>
+							<td>{{ bytes .Hash.Midrange }}</td>
+							<td>{{ bytes .File.Midrange }}</td>
+						</tr>
+						<tr>
+							<td>Midhinge</td>
+							<td>{{ bytes .Hash.Midhinge }}</td>
+							<td>{{ bytes .File.Midhinge }}</td>
+						</tr>
+						<tr>
+							<td>Trimean</td>
+							<td>{{ bytes .Hash.Trimean }}</td>
+							<td>{{ bytes .File.Trimean }}</td>
+						</tr>
+						<tr>
+							<td>Mode</td>
+							<td>{{ bytes .Hash.Mode }}</td>
+							<td>{{ bytes .File.Mode }}</td>
+						</tr>
 
-			<h3>Statistics
-				<span style="font-weight:normal;font-size:smaller">(Calculated every 30 minutes)</span>
-			</h3>
-            <table><tbody>
-				<tr>
-					<td>Files hosted</td>
-					<td>{{ .N }}</td>
-				</tr>
-				<tr>
-					<td>Total size</td>
-					<td>{{ printf "%.4f" .S }} MB</td>
-				</tr>
-				<tr>
-					<td>Average size</td>
-					<td>{{ printf "%.4f" .A }} MB</td>
-				</tr>
-				<tr>
-					<td>Mean size</td>
-					<td>{{ printf "%.4f" .M }} MB</td>
-				</tr>
-			</tbody></table>
+
+					</tbody></table>
+			{{ end }}
 
 			<h3>About</h3>
 			<p>
