@@ -250,38 +250,43 @@ func upload(w http.ResponseWriter, req *http.Request) {
 	} else {
 		for _, fh := range form.File["files"] {
 			switch path.Ext(fh.Filename) {
-			case ".exe", ".bat", ".cmd", ".msi", ".vbs", ".scr", "":
+			case ".exe", ".bat", ".cmd", ".msi", ".vbs", ".scr":
 				res.Success = false
 				res.Errorcode = 403
 				res.Description = fh.Filename + "not allowed timeout be uploaded"
 				break
 			}
 
-			file, err := uploadFile(fh)
-			if err != nil {
-				res.Success = false
-				res.Errorcode = 500
-				res.Description = err.Error()
-				break
+		}
+
+		if res.Success {
+			for _, fh := range form.File["files"] {
+				file, err := uploadFile(fh)
+				if err != nil {
+					res.Success = false
+					res.Errorcode = 500
+					res.Description = err.Error()
+					break
+				}
+				res.Files = append(res.Files, file)
 			}
-			res.Files = append(res.Files, file)
-		}
 
-		var fsum int64
-		for _, f := range res.Files {
-			fsum += f.Size
-		}
-
-		if fsum > maxf {
+			var fsum int64
 			for _, f := range res.Files {
-				os.Remove(udir + f.Uname)
-				os.Remove(hdir + f.Hash)
+				fsum += f.Size
 			}
 
-			res.Success = false
-			res.Errorcode = 400
-			res.Description = "File(s) above size limit"
-			res.Files = nil
+			if fsum > maxf {
+				for _, f := range res.Files {
+					os.Remove(udir + f.Uname)
+					os.Remove(hdir + f.Hash)
+				}
+
+				res.Success = false
+				res.Errorcode = 400
+				res.Description = "File(s) above size limit"
+				res.Files = nil
+			}
 		}
 	}
 
