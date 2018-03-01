@@ -27,11 +27,11 @@ type Response struct {
 }
 
 type File struct {
-	Uname   string
-	Name    string   `json:"name"`
-	Url     *url.URL `json:"url"`
-	Hash    string   `json:"hash"`
-	Size    int64    `json:"size"`
+	Uname   string `json:"-"`
+	Name    string `json:"name"`
+	Url     string `json:"url"`
+	Hash    string `json:"hash"`
+	Size    int64  `json:"size"`
 	timeout time.Time
 }
 
@@ -88,7 +88,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64) (*File, erro
 		return &File{
 			Uname: name,
 			Name:  orig,
-			Url:   u,
+			Url:   u.String(),
 			Hash:  hash,
 			Size:  int64(size),
 		}, nil
@@ -116,7 +116,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64) (*File, erro
 	return &File{
 		Name:  orig,
 		Uname: name,
-		Url:   u,
+		Url:   u.String(),
 		Hash:  hash,
 		Size:  int64(size),
 	}, nil
@@ -303,14 +303,14 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("Content-Type", "text/plain")
 			var urls []string
 			for _, f := range res.Files {
-				urls = append(urls, f.Url.String())
+				urls = append(urls, f.Url)
 			}
 			fmt.Fprintf(w, "%s", strings.Join(urls, "\n"))
 		case "text":
 			w.Header().Set("Content-Type", "text/plain")
 			var urls []string
 			for _, f := range res.Files {
-				urls = append(urls, f.Url.String())
+				urls = append(urls, f.Url)
 			}
 			fmt.Fprintf(w, "%s\n", strings.Join(urls, "\n"))
 		case "html":
@@ -323,7 +323,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			for _, f := range res.Files {
 				csvw.Write([]string{
 					f.Name,
-					f.Url.String(),
+					f.Url,
 					f.Hash,
 					fmt.Sprintf("%d", f.Size),
 				})
