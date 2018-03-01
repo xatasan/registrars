@@ -335,6 +335,11 @@ func upload(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	if req.URL.Query().Get("output") == "html" {
+		w.Header().Set("Content-Type", "text/html")
+		t.ExecuteTemplate(w, "files", res)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
+	}
 }

@@ -9,14 +9,20 @@
  table{margin: 8% auto 0 auto;border-collapse:collapse}
  th,td{padding:8px;border:1px solid #ccc}
 </style>
+{{ if .Success }}
 <table border="1"><tbody>
 	<tr><th>File</th><th>Name</th><th>Hashcode</th><th>Size</th></tr>
 	{{ range .Files }}
 		<tr>
 			<td><a href="{{ .Url }}">{{ .Uname}}</a></td>
 			<td><tt>{{ .Name }}</tt></td>
-			<td><tt>{{ .Hash }}</tt></td>
-			<td>{{ .Size }}</td>
+			<td><tt>{{ printf "%.10s" .Hash }}...</tt></td>
+			<td>{{ bytes .Size }}</td>
 		</tr>
 	{{end}}
 </tbody></table>
+{{ else }}
+<h1>Oops...</h1>
+<p>Looks like there was an error (<code>{{ .Errorcode }}</code>) while uploading the file:</p>
+<pre>{{ .Description }}</pre>
+{{ end }}
