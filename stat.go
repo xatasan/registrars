@@ -26,18 +26,6 @@ type Statistics struct {
 
 type sizes []uint64
 
-func (s sizes) Len() int {
-	return len(s)
-}
-
-func (s sizes) Less(i, j int) bool {
-	return s[i] < s[j]
-}
-
-func (s sizes) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
 func (d sizes) sum() (r uint64) {
 	for _, v := range d {
 		r += v
@@ -180,7 +168,7 @@ func calcStats(dir string) (Statistics, error) {
 	for _, f := range files {
 		s = append(s, uint64(f.Size()))
 	}
-	sort.Sort(s)
+	sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })
 	return Statistics{
 		Count:     uint64(len(s)),
 		Sum:       s.sum(),
