@@ -15,4 +15,5 @@ hdir
 \#*\#
 
 assets.go
-timeout
+timeout.*
+!timeout.go
