@@ -5,24 +5,30 @@
  body{color:#222;font-family:"Liberation Sans",arial,sans-serif;}
  a{text-decoration:none;color:#24c}
  a:hover{text-decoration:underline}
- tt{font-family:"Liberation Mono",monospace,monospace}
- table{margin: 8% auto 0 auto;border-collapse:collapse}
- th,td{padding:8px;border:1px solid #ccc}
+ code{font-family:"Liberation Mono",monospace,monospace}
+ table{border-collapse:collapse}
+ th,td{padding:8px;border:1px solid #cdf}
+ body{margin:8% auto 0 auto;max-width:35em}
+ pre{padding:1em;background:#cdf}
+ nav{text-align:right;font-size:smaller}
 </style>
-{{ if .Success }}
-<table border="1"><tbody>
-	<tr><th>File</th><th>Name</th><th>Hashcode</th><th>Size</th></tr>
-	{{ range .Files }}
-		<tr>
-			<td><a href="{{ .Url }}">{{ .Uname}}</a></td>
-			<td><tt>{{ .Name }}</tt></td>
-			<td><tt>{{ printf "%.10s" .Hash }}...</tt></td>
-			<td>{{ bytes .Size }}</td>
-		</tr>
-	{{end}}
-</tbody></table>
-{{ else }}
-<h1>Oops...</h1>
-<p>Looks like there was an error (<code>{{ .Errorcode }}</code>) while uploading the file:</p>
-<pre>{{ .Description }}</pre>
-{{ end }}
+<body>
+	{{ if .Success }}
+		<table border="1"><tbody>
+			<tr><th>File</th><th>Name</th><th>Hashcode</th><th>Size</th></tr>
+			{{ range .Files }}
+				<tr>
+					<td><a href="{{ .Url }}">{{ .Uname}}</a></td>
+					<td><code>{{ .Name }}</code></td>
+					<td><code>{{ printf "%.10s" .Hash }}...</code></td>
+					<td>{{ bytes .Size }}</td>
+				</tr>
+			{{end}}
+		</tbody></table>
+	{{ else }}
+		<h1>Oops...</h1>
+		<p>Looks like there was an error (<code>{{ .Errorcode }}</code>) while uploading the file:</p>
+		<pre>{{ .Description }}</pre>
+	{{ end }}
+	<nav><a href="..">&larr; back</a></nav>
+</body>
