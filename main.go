@@ -3,7 +3,6 @@ package main
 //go:generate go-bindata -o assets.go assets/
 
 import (
-	"flag"
 	"html/template"
 	"log"
 	"net/http"
@@ -13,12 +12,11 @@ import (
 
 const (
 	flen = 6       // file name length
-	maxf = 1 << 32 // max file size (byte)
+	maxf = 1 << 25 // max file size (byte)
 	alph = "uncopyrightable"
 )
 
 var (
-	name       string // server name
 	uurl       string // upload url
 	hdir, udir string // hashsum directory, upload directory
 	keeptf     bool
@@ -49,13 +47,6 @@ func init() {
 
 	// check whether to keep hashfiles
 	keeptf = os.Getenv("KEEPHF") != ""
-
-	// optional name flag
-	flag.StringVar(&name, "name", "registrars", "set server name")
-	flag.Parse()
-
-	// start stat thread
-	go runStats()
 }
 
 func main() {

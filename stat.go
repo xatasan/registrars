@@ -185,23 +185,23 @@ func calcStats(dir string) (Statistics, error) {
 	}, nil
 }
 
-func runStats() {
-	for {
-		buf := bytes.NewBuffer(nil)
-		hs, _ := calcStats(hdir)
-		us, _ := calcStats(udir)
-		t.ExecuteTemplate(buf, "index", struct {
-			Stats   struct{ File, Hash Statistics }
-			MaxSize uint64
-			Name    string
-		}{
-			struct{ File, Hash Statistics }{hs, us},
-			maxf,
-			name,
-		})
-		index = buf.Bytes()
-		time.Sleep(time.Minute * 30)
-	}
+func init() {
+	go func() {
+		for {
+			buf := bytes.NewBuffer(nil)
+			hs, _ := calcStats(hdir)
+			us, _ := calcStats(udir)
+			t.ExecuteTemplate(buf, "index", struct {
+				Stats   struct{ File, Hash Statistics }
+				MaxSize uint64
+			}{
+				struct{ File, Hash Statistics }{hs, us},
+				maxf,
+			})
+			index = buf.Bytes()
+			time.Sleep(time.Minute * 30)
+		}
+	}()
 }
 
 const unit = 1024
