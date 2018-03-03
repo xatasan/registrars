@@ -76,7 +76,7 @@ func (d sizes) turncMean() uint64 {
 
 func (d sizes) winsMean() uint64 {
 	e := make(sizes, len(d))
-	copy(d, e)
+	copy(e, d)
 	l := int(len(d) / 4)
 	for i := 0; i < l; i++ {
 		e[i] = e[l]
