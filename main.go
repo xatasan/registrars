@@ -32,8 +32,8 @@ func init() {
 	}
 	hdir = wd + "/hdir/"
 	udir = wd + "/udir/"
-	os.Mkdir(hdir, os.ModeDir)
-	os.Mkdir(udir, os.ModeDir)
+	os.Mkdir(hdir, 0755)
+	os.Mkdir(udir, 0755)
 
 	// load template
 	t = template.New("reg").Funcs(template.FuncMap{"bytes": byteSize})
