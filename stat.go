@@ -70,18 +70,18 @@ func (d sizes) contraHarmMean() uint64 {
 }
 
 func (d sizes) turncMean() uint64 {
-	l := int(len(d) / 4)
+	l := len(d) / 4
 	return d[l : len(d)-l].arithMean()
 }
 
 func (d sizes) winsMean() uint64 {
 	e := make(sizes, len(d))
 	copy(e, d)
-	l := int(len(d) / 4)
+	l := len(d) / 4
 	for i := 0; i < l; i++ {
 		e[i] = e[l]
 	}
-	for i := l; i < len(e); i++ {
+	for i := l * 3; i < len(e); i++ {
 		e[i] = e[len(e)-l]
 	}
 	return e.arithMean()
@@ -91,7 +91,7 @@ func (d sizes) midrange() uint64 {
 	if len(d) == 0 {
 		return 0
 	}
-	return uint64((d[0] + d[len(d)-1]) / 2)
+	return (d[0] + d[len(d)-1]) / 2
 }
 
 func (d sizes) midhinge() uint64 {
@@ -107,7 +107,7 @@ func (d sizes) midhinge() uint64 {
 			break
 		}
 	}
-	return uint64(((d[:mpos]).median() + (d[mpos:]).median()) / 2)
+	return ((d[:mpos]).median() + (d[1+mpos:]).median()) / 2
 }
 
 func (d sizes) trimean() uint64 {
@@ -123,9 +123,9 @@ func (d sizes) trimean() uint64 {
 			break
 		}
 	}
-	return uint64(((d[:mpos]).median() +
+	return ((d[:mpos]).median() +
 		2*median +
-		(d[mpos:]).median()) / 4)
+		(d[mpos:]).median()) / 4
 }
 
 func (d sizes) median() (r uint64) { // assume sorted

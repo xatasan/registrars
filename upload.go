@@ -31,7 +31,7 @@ type File struct {
 	Name    string `json:"name"`
 	Url     string `json:"url"`
 	Hash    string `json:"hash"`
-	Size    int64  `json:"size"`
+	Size    uint64 `json:"size"`
 	timeout time.Time
 }
 
@@ -74,7 +74,7 @@ func processFile(in io.Reader) (string, string, error) { // name, hash
 	}
 }
 
-func uploadData(file *os.File, orig, name, hash string, size int64) (*File, error) {
+func uploadData(file *os.File, orig, name, hash string, size uint64) (*File, error) {
 	var err error
 	if _, err = os.Stat(hdir + hash); err == nil {
 		if err = os.Symlink(hdir+hash, udir+name); err != nil {
@@ -90,7 +90,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64) (*File, erro
 			Name:  orig,
 			Url:   u.String(),
 			Hash:  hash,
-			Size:  int64(size),
+			Size:  uint64(size),
 		}, nil
 	}
 
@@ -118,7 +118,7 @@ func uploadData(file *os.File, orig, name, hash string, size int64) (*File, erro
 		Uname: name,
 		Url:   u.String(),
 		Hash:  hash,
-		Size:  int64(size),
+		Size:  uint64(size),
 	}, nil
 }
 
@@ -143,7 +143,7 @@ func uploadText(inp io.Reader) (file *File, err error) {
 	}
 	name += ".txt"
 
-	return uploadData(tmp, "paste.txt", name, hash, size)
+	return uploadData(tmp, "paste.txt", name, hash, uint64(size))
 }
 
 func uploadFile(fh *multipart.FileHeader) (file *File, err error) {
@@ -179,7 +179,7 @@ func uploadFile(fh *multipart.FileHeader) (file *File, err error) {
 		name += path.Ext(fh.Filename)
 	}
 
-	return uploadData(tmp, fh.Filename, name, hash, size)
+	return uploadData(tmp, fh.Filename, name, hash, uint64(size))
 }
 
 func upload(w http.ResponseWriter, req *http.Request) {
@@ -238,7 +238,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 
 			res.Success = false
 			res.Errorcode = 400
-			res.Description = "File above size limit"
+			res.Description = "File above size limit " + byteSize(maxf)
 			res.Files = nil
 		}
 
@@ -253,7 +253,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			case ".exe", ".bat", ".cmd", ".msi", ".vbs", ".scr":
 				res.Success = false
 				res.Errorcode = 403
-				res.Description = fh.Filename + "not allowed timeout be uploaded"
+				res.Description = fh.Filename + " if of an invalid filetype"
 				break
 			}
 
@@ -271,7 +271,7 @@ func upload(w http.ResponseWriter, req *http.Request) {
 				res.Files = append(res.Files, file)
 			}
 
-			var fsum int64
+			var fsum uint64
 			for _, f := range res.Files {
 				fsum += f.Size
 			}
@@ -284,20 +284,18 @@ func upload(w http.ResponseWriter, req *http.Request) {
 
 				res.Success = false
 				res.Errorcode = 400
-				res.Description = "File(s) above size limit"
+				res.Description = "File(s) above size limit " + byteSize(maxf)
 				res.Files = nil
 			}
 		}
 	}
 
-	if res.Success == true {
+	if res.Success {
 		for _, f := range res.Files {
 			f.timeout = timeout
 			files <- f
 		}
-	}
 
-	if res.Success {
 		switch req.URL.Query().Get("output") {
 		case "gyazo":
 			w.Header().Set("Content-Type", "text/plain")
