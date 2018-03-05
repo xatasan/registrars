@@ -17,18 +17,18 @@
 			 padding-top:0;
 		 }
 		 main{background:#def;border:2pt solid #cdf;border-radius:4pt}
-         main h1{font-size: 150%}
+         main h1{font-size: 125%;color:#24c}
 		 aside{margin-left:0;padding-left:0}
-		 aside h1{margin-top:0}
-		 aside h2{line-height: 1.6em}
+		 aside h1{font-size:125%;margin-top:0em}
          p,li{text-align:justify}
 		 hr{border-width:0;border-bottom:2pt solid #cdf}
-		 h1,a{text-decoration:none;color:#24c}
+		 a{text-decoration:none;color:#24c}
 		 a:hover{text-decoration:underline}
 		 tt{font-family:monospace,monospace}
          table{padding:4px;margin:4px auto;border-collapse:collapse}
 		 th,td{padding:4px;margin:0;border:1px solid #ccc}
-		 blockquote {padding:8px;margin: 4px 10%;background:#def}
+		 blockquote {padding:8px;margin: 1em 10%;background:#def}
+		 summary{font-weight:bold;font-size:120%}
 		 input,textarea,select{padding:4px;margin:4px;background:#eee;border:1pt solid #ccc}
 		 input[name=timeout]{width:4em}
 		 input[type=submit]{font-weight:bold;font-family:110%}
@@ -96,110 +96,124 @@
 				or a weird imageboard post, you probably shouldn't trust it.
 			</blockquote>
 
-			<h3>Notes</h3>
-			<ul>
-    			<li>Maximum upload file size is {{ bytes .MaxSize }}. All uploads are public.</li>
-    			<li>Currently all content is allowed under US
-                    law. Malware and child porn is not welcome here.</li>
-    			<li>All filetypes are allowed, except exe, bat, cmd, msi
-                    or similar (Due to malware).</li>
-    			<li>No logs are kept, no logs over uploading nor over
-    				downloading.</li>
-    			<li>We're non-profit and offer this service for free without ads.</li>
-    			<li>For removal of a file or to submit abuse reports
-                    (DMCA) see our contact section.</li>
-				<li>All files were uploaded by anonymous users. The
-                    operators are not responsible for any files hosted
-                    on this site.</li>
-				<li>Files <em>can</em> be uploaded with a timeout, so
-					that they will self-delete themselves after a
-					specified period. <strong>To
-					disable the timeout, set it to zero.</strong></li>
-			</ul>
+			<details open="true">
+				<summary>Notes</summary>
+
+				<ul>
+    				<li>Maximum upload file size is {{ bytes .MaxSize }}. All uploads are public.</li>
+    				<li>Currently all content is allowed under US
+						law. Malware and child porn is not welcome here.</li>
+    				<li>All filetypes are allowed, except exe, bat, cmd, msi
+						or similar (Due to malware).</li>
+    				<li>No logs are kept, no logs over uploading nor over
+    					downloading.</li>
+    				<li>We're non-profit and offer this service for free without ads.</li>
+    				<li>For removal of a file or to submit abuse reports
+						(DMCA) see our contact section.</li>
+					<li>All files were uploaded by anonymous users. The
+						operators are not responsible for any files hosted
+						on this site.</li>
+					<li>Files <em>can</em> be uploaded with a timeout, so
+						that they will self-delete themselves after a
+						specified period. <strong>To
+						disable the timeout, set it to zero.</strong></li>
+				</ul>
+			</details>
+			
 			{{ with .Stats }}
-				<h3>Statistics
-					<span style="font-weight:normal;font-size:smaller">(Calculated every 30 minutes)</span>
-				</h3>
-				<table>
-					<thead>
-						<tr>
-							<th></th>
-							<th>Unique</th>
-							<th>Overall</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>Overall Files</td>
-							<td>{{ .Hash.Count }}</td>
-							<td>{{ .File.Count }}</td>
-						</tr>
-						<tr>
-							<td>Total size</td>
-							<td>{{ bytes .Hash.Sum }}</td>
-							<td>{{ bytes .File.Sum }}</td>
-						</tr>
-						<tr>
-							<td>Arithmetic Mean</td>
-							<td>{{ bytes .Hash.AritMean }}</td>
-							<td>{{ bytes .File.AritMean }}</td>
-						</tr>
-						<tr>
-							<td>Harmonic Mean</td>
-							<td>{{ bytes .Hash.HarmMean }}</td>
-							<td>{{ bytes .File.HarmMean }}</td>
-						</tr>
-						<tr>
-							<td>Contraharmonic Mean</td>
-							<td>{{ bytes .Hash.CHarmMean }}</td>
-							<td>{{ bytes .File.CHarmMean }}</td>
-						</tr>
-						<tr>
-							<td>Geometric Mean</td>
-							<td>{{ bytes .Hash.GeomMean }}</td>
-							<td>{{ bytes .File.GeomMean }}</td>
-						</tr>
-						<tr>
-							<td>Turncated Mean</td>
-							<td>{{ bytes .Hash.TurncMean }}</td>
-							<td>{{ bytes .File.TurncMean }}</td>
-						</tr>
-						<tr>
-							<td>Winsorized Mean</td>
-							<td>{{ bytes .Hash.WinsMean }}</td>
-							<td>{{ bytes .File.WinsMean }}</td>
-						</tr>
-						<tr>
-							<td>Midrange</td>
-							<td>{{ bytes .Hash.Midrange }}</td>
-							<td>{{ bytes .File.Midrange }}</td>
-						</tr>
-						<tr>
-							<td>Midhinge</td>
-							<td>{{ bytes .Hash.Midhinge }}</td>
-							<td>{{ bytes .File.Midhinge }}</td>
-						</tr>
-						<tr>
-							<td>Trimean</td>
-							<td>{{ bytes .Hash.Trimean }}</td>
-							<td>{{ bytes .File.Trimean }}</td>
-						</tr>
-						<tr>
-							<td>Mode</td>
-							<td>{{ bytes .Hash.Mode }}</td>
-							<td>{{ bytes .File.Mode }}</td>
-						</tr>
+				<details>
+					<summary>Statistics</summary>
 
-
-					</tbody></table>
+					<p>
+						The following table gives an overview of how
+						many unique (by hashsum) and actually uploaded
+						(by filename) files are hosted, and what their
+						median, mean and mode (and a few more things)
+						filesizes are.
+					</p>
+					
+					<table>
+						<thead>
+							<tr>
+								<th></th>
+								<th>Unique</th>
+								<th>Overall</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Overall Files</td>
+								<td>{{ .Hash.Count }}</td>
+								<td>{{ .File.Count }}</td>
+							</tr>
+							<tr>
+								<td>Total size</td>
+								<td>{{ bytes .Hash.Sum }}</td>
+								<td>{{ bytes .File.Sum }}</td>
+							</tr>
+							<tr>
+								<td>Arithmetic Mean</td>
+								<td>{{ bytes .Hash.AritMean }}</td>
+								<td>{{ bytes .File.AritMean }}</td>
+							</tr>
+							<tr>
+								<td>Harmonic Mean</td>
+								<td>{{ bytes .Hash.HarmMean }}</td>
+								<td>{{ bytes .File.HarmMean }}</td>
+							</tr>
+							<tr>
+								<td>Contraharmonic Mean</td>
+								<td>{{ bytes .Hash.CHarmMean }}</td>
+								<td>{{ bytes .File.CHarmMean }}</td>
+							</tr>
+							<tr>
+								<td>Geometric Mean</td>
+								<td>{{ bytes .Hash.GeomMean }}</td>
+								<td>{{ bytes .File.GeomMean }}</td>
+							</tr>
+							<tr>
+								<td>Turncated Mean</td>
+								<td>{{ bytes .Hash.TurncMean }}</td>
+								<td>{{ bytes .File.TurncMean }}</td>
+							</tr>
+							<tr>
+								<td>Winsorized Mean</td>
+								<td>{{ bytes .Hash.WinsMean }}</td>
+								<td>{{ bytes .File.WinsMean }}</td>
+							</tr>
+							<tr>
+								<td>Midrange</td>
+								<td>{{ bytes .Hash.Midrange }}</td>
+								<td>{{ bytes .File.Midrange }}</td>
+							</tr>
+							<tr>
+								<td>Midhinge</td>
+								<td>{{ bytes .Hash.Midhinge }}</td>
+								<td>{{ bytes .File.Midhinge }}</td>
+							</tr>
+							<tr>
+								<td>Trimean</td>
+								<td>{{ bytes .Hash.Trimean }}</td>
+								<td>{{ bytes .File.Trimean }}</td>
+							</tr>
+							<tr>
+								<td>Mode</td>
+								<td>{{ bytes .Hash.Mode }}</td>
+								<td>{{ bytes .File.Mode }}</td>
+							</tr>
+						</tbody></table>
+				</details>
 			{{ end }}
-
-			<h3>About</h3>
-			<p>
-				If there are any [legal, technical, ...] issues with
-				any content hosted on this server, please contact the
-				<a href="mailto:xatasan@firemail.cc">admin</a>.
-			</p>
+			
+			<details>
+				<summary>About</summary>
+				<p>
+					If there are any [legal, technical, ...] issues with
+					any content hosted on this server, please contact the
+					<a href="mailto:xatasan@firemail.cc">admin</a>. The
+					source code can be found <a href="https://github.com/xatasan/registrars">here</a>.
+				</p>
+			</details>
 		</aside>
 	</body>
 </html>
