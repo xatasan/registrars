@@ -84,20 +84,6 @@ func TestArithMean(t *testing.T) {
 	}, (sizes).arithMean)
 }
 
-func TestGeomMean(t *testing.T) {
-	avgTester(t, []test{
-		{sizes{1, 2, 4}, 2, true},
-		{sizes{0, 0, 0, 0, 50}, 0, true},
-		{sizes{1, 3, 9, 27, 81}, 9, true},
-		{sizes{2, 4, 1}, 2, true},              // invariance under exchange
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).geomMean)
-}
-
 func TestHarmMean(t *testing.T) {
 	avgTester(t, []test{
 		{sizes{1, 4, 4}, 2, true},

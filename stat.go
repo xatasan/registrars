@@ -15,7 +15,6 @@ type Statistics struct {
 	AritMean  uint64
 	HarmMean  uint64
 	CHarmMean uint64
-	GeomMean  uint64
 	TurncMean uint64
 	WinsMean  uint64
 	Midrange  uint64
@@ -51,18 +50,6 @@ func (d sizes) arithMean() uint64 {
 
 func (d sizes) harmMean() uint64 {
 	return d.lehmerMean(0)
-}
-
-func (d sizes) geomMean() uint64 {
-	if len(d) == 0 {
-		return 0
-	}
-	p := float64(1)
-	l := float64(1 / len(d))
-	for _, v := range d {
-		p *= math.Pow(float64(v), l)
-	}
-	return uint64(p)
 }
 
 func (d sizes) contraHarmMean() uint64 {
@@ -174,7 +161,6 @@ func calcStats(dir string) (Statistics, error) {
 		Sum:       s.sum(),
 		AritMean:  s.arithMean(),
 		HarmMean:  s.harmMean(),
-		GeomMean:  s.geomMean(),
 		CHarmMean: s.contraHarmMean(),
 		TurncMean: s.turncMean(),
 		WinsMean:  s.winsMean(),
