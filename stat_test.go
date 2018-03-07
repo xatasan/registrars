@@ -58,6 +58,7 @@ type test struct {
 
 func avgTester(t *testing.T, tests []test, f func(sizes) uint64) {
 	for _, T := range tests {
+		lp := len(T.data)
 		a := f(T.data)
 		if (T.exp == a) != T.result {
 			var pre string
@@ -66,7 +67,11 @@ func avgTester(t *testing.T, tests []test, f func(sizes) uint64) {
 			} else {
 				pre = "didn't expect"
 			}
-			t.Errorf("%s %d but got %d", pre, T.exp, a)
+			t.Errorf("%s %d but got %d (%v)", pre, T.exp, a, T.data)
+		}
+		if lp != len(T.data) {
+			t.Errorf("Length of dataset (%v) changed. Was %d but now is %s",
+				T.data, lp, len(T.data))
 		}
 	}
 }
