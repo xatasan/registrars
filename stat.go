@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
+	"os"
+	"path"
 	"sort"
 	"time"
 )
@@ -152,8 +154,11 @@ func calcStats(dir string) (Statistics, error) {
 	if err != nil {
 		return Statistics{}, err
 	}
-	for _, f := range files {
-		s = append(s, uint64(f.Size()))
+	for _, fn := range files {
+		fs, err := os.Stat(path.Join(dir, fn.Name()))
+		if err == nil {
+			s = append(s, uint64(fs.Size()))
+		}
 	}
 	sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })
 	return Statistics{
