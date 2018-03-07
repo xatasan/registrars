@@ -119,7 +119,6 @@ func TestTurncMean(t *testing.T) {
 	avgTester(t, []test{
 		{sizes{1}, 1, true},
 		{sizes{1, 3, 7, 10}, 5, true},
-		{sizes{3, 1, 10, 7}, 5, true},          // invariance under exchange
 		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
 		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
@@ -132,7 +131,6 @@ func TestWinsMean(t *testing.T) {
 	avgTester(t, []test{
 		{sizes{1}, 1, true},
 		{sizes{1, 10, 10, 100}, 10, true},
-		{sizes{10, 1, 100, 10}, 10, true},      // invariance under exchange
 		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
 		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
@@ -146,7 +144,6 @@ func TestMidrange(t *testing.T) {
 		{sizes{1}, 1, true},
 		{sizes{1, 3, 3, 4, 5}, 3, true},
 		{sizes{1, 10, 10, 99}, 50, true},
-		{sizes{99, 1, 10, 10}, 10, true},       // invariance under exchange
 		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
 		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
@@ -159,7 +156,6 @@ func TestMidhinge(t *testing.T) {
 	avgTester(t, []test{
 		{sizes{1}, 1, true},
 		{sizes{1, 3, 4, 5, 4, 5, 6}, 4, true},
-		{sizes{10, 1, 100, 10}, 10, true},      // invariance under exchange
 		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
 		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
@@ -188,7 +184,6 @@ func TestMedian(t *testing.T) {
 		{sizes{1}, 1, true},
 		{sizes{0, 3, 4, 5, 10}, 4, true},
 		{sizes{1, 2, 2, 6, 10, 100}, 4, true},
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
 		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
 		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
