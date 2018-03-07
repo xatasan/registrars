@@ -22,6 +22,7 @@ type Statistics struct {
 	Midrange  uint64
 	Midhinge  uint64
 	Trimean   uint64
+	Median    uint64
 	Mode      uint64
 }
 
@@ -172,7 +173,8 @@ func calcStats(dir string) (Statistics, error) {
 		Midrange:  s.midrange(),
 		Midhinge:  s.midhinge(),
 		Trimean:   s.trimean(),
-		Mode:      s.trimean(),
+		Median:    s.median(),
+		Mode:      s.mode(),
 	}, nil
 }
 
