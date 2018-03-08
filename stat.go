@@ -71,8 +71,8 @@ func (d sizes) winsMean() uint64 {
 	for i := 0; i < l; i++ {
 		e[i] = e[l]
 	}
-	for i := l * 3; i < len(e); i++ {
-		e[i] = e[len(e)-l]
+	for i := len(e) - l - 1; i < len(e); i++ {
+		e[i] = e[len(d)-l-1]
 	}
 	return e.arithMean()
 }
