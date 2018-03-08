@@ -119,22 +119,29 @@ func (d sizes) trimean() uint64 {
 }
 
 func (d sizes) median() (r uint64) { // assume sorted
-	switch {
-	case len(d)%2 == 1:
-		mid := float64(len(d) / 2)
-		r = d[int(math.Ceil(mid))] +
-			d[int(math.Floor(mid))]
-		r /= 2
-	case len(files) > 0:
-		r = d[int(len(d)/2)]
+	switch len(d) {
+	case 0:
+	case 1:
+		r = d[0]
+	default:
+		if len(d)%2 == 0 {
+			mid := len(d) / 2
+			r = (d[mid-1] + d[mid]) / 2
+		} else {
+			r = d[len(d)/2]
+		}
 	}
 	return
 }
 
 func (d sizes) mode() uint64 {
-	var p, c, pp, pc uint64
+	if len(d) == 0 {
+		return 0
+	}
+	var p, c uint64             // previous, counter
+	var pp, pc uint64 = d[0], 1 // prev. previous, prev. counter
 	for _, v := range d {
-		v = v - (v % 1 << 12)
+		v = v - (v % (1 << 10)) // crop sub-MB data
 		if p == v {
 			c++
 			if c > pc {
@@ -142,7 +149,7 @@ func (d sizes) mode() uint64 {
 				pc = c
 			}
 		} else {
-			c = 0
+			c = 1
 		}
 		p = v
 	}
