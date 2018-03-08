@@ -104,15 +104,15 @@ func TestHarmMean(t *testing.T) {
 
 func TestCHarmMean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1, 4, 5}, 2, true},
-		{sizes{2, 2, 8, 8, 8, 8}, 4, true},
-		{sizes{4, 4, 1}, 2, true},              // invariance under exchange
+		{sizes{1, 4, 5}, 4, true},
+		{sizes{2, 2, 8, 8, 8, 8}, 7, true},
+		{sizes{4, 4, 1}, 3, true},              // invariance under exchange
 		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
 		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
 		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
 		{sizes{2}, 1, false},
-	}, (sizes).harmMean)
+	}, (sizes).contraHarmMean)
 }
 
 func TestTurncMean(t *testing.T) {
@@ -149,7 +149,7 @@ func TestMidrange(t *testing.T) {
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
 		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
 		{sizes{2}, 1, false},
-	}, (sizes).winsMean)
+	}, (sizes).midrange)
 }
 
 func TestMidhinge(t *testing.T) {
@@ -175,7 +175,7 @@ func TestTrimean(t *testing.T) {
 		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
 		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
 		{sizes{2}, 1, false},
-	}, (sizes).median)
+	}, (sizes).trimean)
 }
 
 func TestMedian(t *testing.T) {
@@ -193,15 +193,31 @@ func TestMedian(t *testing.T) {
 
 func TestMode(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1}, 1, true},
-		{sizes{1, 1, 1, 2, 2, 3}, 1, true},
-		{sizes{1, 1, 1, 2, 3, 3, 3, 3, 4}, 3, true},
-		{sizes{1, 10, 10, 100}, 10, true},
-		{sizes{10, 100, 1, 10}, 10, true},      // invariance under exchange
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
+		{sizes{1 << 14}, 1 << 14, true},
+		{sizes{
+			1 << 14,
+			1 << 14,
+			1 << 14,
+			2 * 1 << 14,
+			2 * 1 << 14,
+			3 * 1 << 14,
+		}, 1 << 14, true},
+		{sizes{
+			1 << 14,
+			1 << 14,
+			1 << 14,
+			2 * 1 << 14,
+			3 * 1 << 14,
+			3 * 1 << 14,
+			3 * 1 << 14,
+			3 * 1 << 14,
+			4 * 1 << 14,
+		}, 3 * 1 << 14, true},
+		{sizes{
+			1 << 14,
+			10 * 1 << 14,
+			10 * 1 << 14,
+			100 * 1 << 14,
+		}, 10 * 1 << 14, true},
 	}, (sizes).mode)
 }
