@@ -24,7 +24,7 @@ var (
 	index      []byte
 )
 
-func init() {
+func main() {
 	// setup file directories
 	wd, err := os.Getwd()
 	if err != nil {
@@ -47,18 +47,22 @@ func init() {
 
 	// check whether to keep hashfiles
 	keeptf = os.Getenv("KEEPHF") != ""
-}
 
-func main() {
+	// find out what port to listen on
 	host := os.Getenv("HOST")
 	u, err := user.Current()
 	if err == nil && u.Uid != "0" && host == "" {
 		host = ":8080"
 	}
 
+	// set uurl, if possible
 	if len(os.Args) > 1 {
 		uurl = os.Args[1]
 	}
+
+	// start background processes
+	go timeoutSetup()
+	go statWorker()
 
 	// start HTTP server
 	http.HandleFunc("/upload", upload)

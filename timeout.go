@@ -85,7 +85,7 @@ var (
 	tolog  *os.File
 )
 
-func init() {
+func timeoutSetup() {
 	istat, err := os.Stdin.Stat()
 	if err != nil {
 		log.Fatalln(err)
