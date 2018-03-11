@@ -23,7 +23,7 @@ type Response struct {
 	Success     bool    `json:"success"`
 	Errorcode   int     `json:"errorcode"`
 	Description string  `json:"description"`
-	Files       []*File `json:"files"`
+	Files       []*File `json:"files,omitempty"`
 }
 
 type File struct {
