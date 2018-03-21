@@ -1,12 +1,13 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 	"testing"
 )
 
 func TestByteSize(t *testing.T) {
-	tests := map[uint64]string{
+	tests := map[float64]string{
 		0:    "0B",
 		512:  "512B",
 		1023: "1023B",
@@ -35,42 +36,42 @@ func TestByteSize(t *testing.T) {
 }
 
 func TestSum(t *testing.T) {
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		var sum uint64
-		var data sizes
-		for j := 0; j < 100; j++ {
+		var data []uint64
+		for j := 0; j < 50+rand.Intn(50); j++ {
 			var x uint64 = rand.Uint64()
 			sum += x
 			data = append(data, x)
 		}
-		r := data.sum()
-		if r != sum {
-			t.Errorf("expected %d but got %d", sum, r)
+		r := mkStat(data).sum()
+		if r != float64(sum) {
+			t.Errorf("expected %d but got %f", sum, r)
 		}
 	}
 }
 
 type test struct {
-	data   sizes
-	exp    uint64
+	data   []uint64
+	exp    float64
 	result bool
 }
 
-func avgTester(t *testing.T, tests []test, f func(sizes) uint64) {
+func avgTester(t *testing.T, tests []test, f func(Statistics) float64) {
 	for _, T := range tests {
 		lp := len(T.data)
-		a := f(T.data)
-		if (T.exp == a) != T.result {
+		a := f(mkStat(T.data))
+		if (math.Abs(T.exp-a) < 1) != T.result {
 			var pre string
 			if T.result {
 				pre = "expected"
 			} else {
 				pre = "didn't expect"
 			}
-			t.Errorf("%s %d but got %d (%v)", pre, T.exp, a, T.data)
+			t.Errorf("%s %f but got %f (%v)", pre, T.exp, a, T.data)
 		}
 		if lp != len(T.data) {
-			t.Errorf("Length of dataset (%v) changed. Was %d but now is %s",
+			t.Errorf("Length of dataset (%v) changed. Was %d but now is %d",
 				T.data, lp, len(T.data))
 		}
 	}
@@ -78,123 +79,123 @@ func avgTester(t *testing.T, tests []test, f func(sizes) uint64) {
 
 func TestArithMean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1, 2, 3}, 2, true},
-		{sizes{0, 0, 0, 0, 50}, 10, true},
-		{sizes{3, 2, 1}, 2, true},              // invariance under exchange
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).arithMean)
+		{[]uint64{1, 2, 3}, 2, true},
+		{[]uint64{0, 0, 0, 0, 50}, 10, true},
+		{[]uint64{3, 2, 1}, 2, true},              // invariance under exchange
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).arithMean)
 }
 
 func TestHarmMean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1, 4, 4}, 2, true},
-		{sizes{2, 2, 8, 8, 8, 8}, 4, true},
-		{sizes{4, 4, 1}, 2, true},              // invariance under exchange
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).harmMean)
+		{[]uint64{1, 4, 4}, 2, true},
+		{[]uint64{2, 2, 8, 8, 8, 8}, 4, true},
+		{[]uint64{4, 4, 1}, 2, true},              // invariance under exchange
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).harmMean)
 }
 
 func TestCHarmMean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1, 4, 5}, 4, true},
-		{sizes{2, 2, 8, 8, 8, 8}, 7, true},
-		{sizes{4, 4, 1}, 3, true},              // invariance under exchange
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).contraHarmMean)
+		{[]uint64{1, 4, 5}, 4, true},
+		{[]uint64{2, 2, 8, 8, 8, 8}, 7, true},
+		{[]uint64{4, 4, 1}, 3, true},              // invariance under exchange
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).contraHarmMean)
 }
 
 func TestTurncMean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1}, 1, true},
-		{sizes{1, 3, 7, 10}, 5, true},
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).turncMean)
+		{[]uint64{1}, 1, true},
+		{[]uint64{1, 3, 7, 10}, 5, true},
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).turncMean)
 }
 
 func TestWinsMean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1}, 1, true},
-		{sizes{1, 10, 10, 100}, 10, true},
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).winsMean)
+		{[]uint64{1}, 1, true},
+		{[]uint64{1, 10, 10, 100}, 10, true},
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).winsMean)
 }
 
 func TestMidrange(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1}, 1, true},
-		{sizes{1, 3, 3, 4, 5}, 3, true},
-		{sizes{1, 10, 10, 99}, 50, true},
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).midrange)
+		{[]uint64{1}, 1, true},
+		{[]uint64{1, 3, 3, 4, 5}, 3, true},
+		{[]uint64{1, 10, 10, 99}, 50, true},
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).midrange)
 }
 
 func TestMidhinge(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1}, 1, true},
-		{sizes{1, 3, 4, 5, 4, 5, 6}, 4, true},
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).midhinge)
+		{[]uint64{1}, 1, true},
+		{[]uint64{1, 3, 4, 5, 4, 5, 6}, 4, true},
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).midhinge)
 }
 
 func TestTrimean(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{}, 0, true},
-		{sizes{1}, 1, true},
-		{sizes{1, 2, 3, 4, 5, 6, 7}, 4, true},
-		{sizes{1, 2, 3, 15, 1000, 2000, 3000}, 508, true},
-		{sizes{1, 1, 1, 1, 1}, 1, true},        // value preservation
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).trimean)
+		{[]uint64{}, 0, true},
+		{[]uint64{1}, 1, true},
+		{[]uint64{1, 2, 3, 4, 5, 6, 7}, 4, true},
+		{[]uint64{1, 2, 3, 15, 1000, 2000, 3000}, 508, true},
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).trimean)
 }
 
 func TestMedian(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{}, 0, true},
-		{sizes{1}, 1, true},
-		{sizes{0, 3, 4, 5, 10}, 4, true},
-		{sizes{1, 2, 2, 6, 10, 100}, 4, true},
-		{sizes{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
-		{sizes{10, 20, 30, 40, 50}, 0, false},  // more than min
-		{sizes{10, 20, 30, 40, 50}, 60, false}, // less than max
-		{sizes{2}, 1, false},
-	}, (sizes).median)
+		{[]uint64{}, 0, true},
+		{[]uint64{1}, 1, true},
+		{[]uint64{0, 3, 4, 5, 10}, 4, true},
+		{[]uint64{1, 2, 2, 6, 10, 100}, 4, true},
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).median)
 }
 
 func TestMode(t *testing.T) {
 	avgTester(t, []test{
-		{sizes{1 << 14}, 1 << 14, true},
-		{sizes{
+		{[]uint64{1 << 14}, 1 << 14, true},
+		{[]uint64{
 			1 << 14,
 			1 << 14,
 			1 << 14,
@@ -202,7 +203,7 @@ func TestMode(t *testing.T) {
 			2 * 1 << 14,
 			3 * 1 << 14,
 		}, 1 << 14, true},
-		{sizes{
+		{[]uint64{
 			1 << 14,
 			1 << 14,
 			1 << 14,
@@ -213,11 +214,11 @@ func TestMode(t *testing.T) {
 			3 * 1 << 14,
 			4 * 1 << 14,
 		}, 3 * 1 << 14, true},
-		{sizes{
+		{[]uint64{
 			1 << 14,
 			10 * 1 << 14,
 			10 * 1 << 14,
 			100 * 1 << 14,
 		}, 10 * 1 << 14, true},
-	}, (sizes).mode)
+	}, (Statistics).mode)
 }
