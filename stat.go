@@ -16,6 +16,7 @@ type Statistics struct {
 	Count     int
 	Sum       float64
 	AritMean  float64
+	GeomMean  float64
 	HarmMean  float64
 	CHarmMean float64
 	TurncMean float64
@@ -64,6 +65,36 @@ func (d Statistics) arithMean() float64 {
 		d.AritMean = d.lehmerMean(1)
 	}
 	return d.AritMean
+}
+
+// based off https://rosettacode.org/wiki/Nth_root#Go
+func nthRoot(a float64, n int) float64 {
+	var n1f, rn, x, x0 float64 = float64(n - 1), 1 / float64(n), 1, 0
+	for {
+		potx, t2 := 1/x, a
+		for b := n - 1; b > 0; b >>= 1 {
+			if b&1 == 1 {
+				t2 *= potx
+			}
+			potx *= potx
+		}
+		x0, x = x, rn*(n1f*x+t2)
+		if math.Abs(x-x0)*1e10 < x {
+			break
+		}
+	}
+	return x
+}
+
+func (d Statistics) geomMean() float64 {
+	if d.GeomMean == 0 {
+		pi := 1.0
+		for _, v := range d.data {
+			pi *= float64(v)
+		}
+		d.GeomMean = nthRoot(pi, len(d.data))
+	}
+	return d.GeomMean
 }
 
 func (d Statistics) harmMean() float64 {
@@ -202,6 +233,7 @@ func (d Statistics) calculate() {
 	d.count()
 	d.sum()
 	d.arithMean()
+	d.geomMean()
 	d.harmMean()
 	d.contraHarmMean()
 	d.turncMean()

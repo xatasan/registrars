@@ -35,6 +35,27 @@ func TestByteSize(t *testing.T) {
 	}
 }
 
+func TestRoot(t *testing.T) {
+	tests := []struct {
+		r, i float64
+		n    int
+	}{
+		{1, 1, 1},
+		{7, 49, 2},
+		{2.2360, 5, 2},
+		{1.5874, 4, 3},
+		{1.5707, 5321, 19},
+	}
+
+	eppsilon := 0.0001
+	for _, T := range tests {
+		r := nthRoot(T.i, T.n)
+		if (r-T.r) > eppsilon || (T.r-r) > eppsilon {
+			t.Errorf("Root too far off: expected %f, got %f", T.r, r)
+		}
+	}
+}
+
 func TestSum(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		var sum uint64
@@ -114,6 +135,20 @@ func TestCHarmMean(t *testing.T) {
 		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
 		{[]uint64{2}, 1, false},
 	}, (Statistics).contraHarmMean)
+}
+
+func TestGeomMean(t *testing.T) {
+	avgTester(t, []test{
+		{[]uint64{1, 4, 5}, 2.7144, true},
+		{[]uint64{2, 2, 4, 8, 16}, 4.59479, true},
+		{[]uint64{1024, 1024, 1024, 1024, 1024, 1024, 1024, 1022}, 1023.7497, true},
+		{[]uint64{5, 4, 1}, 2.7144, true},         // invariance under exchange
+		{[]uint64{1, 1, 1, 1, 1}, 1, true},        // value preservation
+		{[]uint64{5, 5, 5, 5, 5, 5}, 5, true},     // first-order preservation
+		{[]uint64{10, 20, 30, 40, 50}, 0, false},  // more than min
+		{[]uint64{10, 20, 30, 40, 50}, 60, false}, // less than max
+		{[]uint64{2}, 1, false},
+	}, (Statistics).geomMean)
 }
 
 func TestTurncMean(t *testing.T) {
