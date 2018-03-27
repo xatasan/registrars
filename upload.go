@@ -309,16 +309,14 @@ func upload(w http.ResponseWriter, req *http.Request) {
 			fmt.Fprintf(w, "%s", strings.Join(urls, "\n"))
 		case "text":
 			w.Header().Set("Content-Type", "text/plain")
-			var urls []string
 			for _, f := range res.Files {
-				urls = append(urls, f.Url)
+				fmt.Fprintln(w, f.Url)
 			}
-			fmt.Fprintf(w, "%s\n", strings.Join(urls, "\n"))
 		case "html":
 			w.Header().Set("Content-Type", "text/html")
 			t.ExecuteTemplate(w, "files", res)
 		case "csv":
-			w.Header().Set("Content-Type", "text/cvs")
+			w.Header().Set("Content-Type", "text/csv")
 			fmt.Fprint(w, "name,url,hash,size\n")
 			csvw := csv.NewWriter(w)
 			for _, f := range res.Files {
@@ -328,6 +326,11 @@ func upload(w http.ResponseWriter, req *http.Request) {
 					f.Hash,
 					fmt.Sprintf("%d", f.Size),
 				})
+			}
+		case "tsv":
+			w.Header().Set("Content-Type", "text/tag-seperated-values")
+			for _, f := range res.Files {
+				fmt.Fprintf(w, "%s\t%s\t%s\t%d\n", f.Name, f.Url, f.Hash, f.Size)
 			}
 		default:
 			w.Header().Set("Content-Type", "application/json")
