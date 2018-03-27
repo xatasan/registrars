@@ -1,8 +1,7 @@
 package main
 
 import (
-	"crypto/sha1"
-	"encoding/base32"
+	"crypto/sha256"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -56,12 +55,16 @@ func toFile(str string) *File {
 }
 
 func processFile(in io.Reader) (string, string, error) { // name, hash
-	hash := sha1.New()
+	hash := sha256.New()
 	_, err := io.Copy(hash, in)
 	if err != nil {
 		return "", "", err
 	}
-	hsum := strings.ToLower(base32.StdEncoding.EncodeToString(hash.Sum(nil)))
+	var hbuf strings.Builder
+	for _, b := range hash.Sum(nil) {
+		hbuf.WriteString(fmt.Sprintf("%x", b))
+	}
+	hsum := hbuf.String()
 
 	for {
 		name := ""
