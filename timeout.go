@@ -148,7 +148,11 @@ func timeoutWorker(files <-chan *File, q *pQueue) {
 	)
 
 	waitOnNext = func() {
-		deleteFile(heap.Pop(q).(*File))
+		val := heap.Pop(q)
+		if val == nil {
+			return
+		}
+		deleteFile(val.(*File))
 		if q.Len() > 0 {
 			time.AfterFunc(time.Until((*q)[0].timeout), waitOnNext)
 		}
